@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Стратегический симулятор принуждения, автономии и смены игрового поля.">
+  <title>Поле конфликта — стратегический симулятор</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Начать заново">
+      <span class="brand-mark">◫</span>
+      <span>ПОЛЕ КОНФЛИКТА</span>
+    </a>
+    <div class="top-actions">
+      <button class="text-button" id="modelButton">Модель</button>
+      <button class="text-button" id="debugButton" aria-pressed="false">Explain: выкл</button>
+      <button class="icon-button" id="soundButton" aria-label="Отключить звук" aria-pressed="true">◉</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro" id="introView">
+      <div class="eyebrow">СТРАТЕГИЧЕСКАЯ ПЕСОЧНИЦА · СЦЕНАРИЙ 01</div>
+      <h1>Сила — это не только<br><em>способность ударить.</em></h1>
+      <p class="intro-copy">Превратите неопределённый страх в анализируемый конфликт. Сохраняйте автономию, меняйте игровое поле и не позволяйте одному решению стать системой контроля.</p>
+
+      <div class="scenario-card">
+        <div class="scenario-index">01</div>
+        <div>
+          <div class="scenario-meta">ШКОЛЬНЫЙ КОРИДОР · ПОСЛЕ УРОКОВ</div>
+          <h2>Чужое правило</h2>
+          <p>Старший ученик перекрывает путь и требует отдать новый блокнот. В коридоре почти никого нет, но за дверями ещё есть люди.</p>
+          <div class="scenario-facts">
+            <span>До 10 ходов</span><span>Скрытая информация</span><span>Несколько исходов</span>
+          </div>
+        </div>
+        <button class="primary-button" id="startButton">ВОЙТИ В СИТУАЦИЮ <span>→</span></button>
+      </div>
+
+      <div class="principle-grid">
+        <article><span>01</span><h3>Смотрите шире</h3><p>У каждого действия есть цена сейчас и последствия потом.</p></article>
+        <article><span>02</span><h3>Снижайте туман</h3><p>Информация меняет страх точнее, чем попытка просто не бояться.</p></article>
+        <article><span>03</span><h3>Меняйте поле</h3><p>Время, свидетели и правила обесценивают грубую силу.</p></article>
+      </div>
+    </section>
+
+    <section class="game hidden" id="gameView">
+      <div class="round-line">
+        <div><span class="eyebrow" id="roundLabel">ХОД 1 / 10</span><span class="stage-name" id="stageName">PROBE</span></div>
+        <button class="text-button restart-button" id="restartButton">Начать заново</button>
+      </div>
+
+      <div class="game-grid">
+        <aside class="actor-card aggressor" id="aggressorCard">
+          <div class="actor-title"><span class="actor-symbol">A</span><div><span class="eyebrow">COERCER</span><h2>Старший</h2></div></div>
+          <div class="metric-list" id="aggressorMetrics"></div>
+          <div class="knowledge-card"><span>Ваше знание</span><strong id="knowledgeLabel">Низкое</strong><div class="mini-track"><i id="knowledgeFill"></i></div></div>
+        </aside>
+
+        <section class="situation-panel">
+          <div class="situation-top">
+            <div class="pulse-dot"></div>
+            <div><span class="eyebrow">СЕЙЧАС</span><h2 id="situationTitle">Он пробует границу</h2></div>
+          </div>
+          <p class="situation-text" id="situationText"></p>
+
+          <div class="control-block">
+            <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
+            <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
+            <div class="control-value" id="controlValue">+3 агрессору</div>
+          </div>
+
+          <div class="core-metrics" id="coreMetrics"></div>
+
+          <div class="event-card" id="eventCard">
+            <span class="eyebrow">ПОСЛЕДНЕЕ СОБЫТИЕ</span>
+            <p id="eventText">«Дай посмотреть блокнот. Я потом верну».</p>
+            <div id="effectChips" class="effect-chips"></div>
+          </div>
+
+          <div class="debug-panel hidden" id="debugPanel">
+            <div class="debug-head"><span>EXPLAIN / DEBUG</span><span id="debugFormula">—</span></div>
+            <pre id="debugText">Выберите действие, чтобы увидеть расчёт.</pre>
+          </div>
+        </section>
+
+        <aside class="actor-card defender">
+          <div class="actor-title"><span class="actor-symbol">D</span><div><span class="eyebrow">DEFENDER · ВЫ</span><h2>Чик</h2></div></div>
+          <div class="metric-list" id="defenderMetrics"></div>
+          <div class="field-card" id="fieldCard"><span>Игровое поле</span><strong id="fieldLabel">Один на один</strong><p id="fieldDescription">Изоляция усиливает физическое преимущество агрессора.</p></div>
+        </aside>
+      </div>
+
+      <section class="decision-panel" id="decisionPanel">
+        <div class="decision-heading"><div><span class="eyebrow">ВАШ ХОД</span><h2>Как изменить ситуацию?</h2></div><p>Нет универсально верной кнопки. Смотрите на контекст и цену продолжения.</p></div>
+        <div class="action-grid" id="actionGrid"></div>
+      </section>
+
+      <section class="history-panel">
+        <button class="history-toggle" id="historyToggle" aria-expanded="false"><span>ХРОНИКА КОНФЛИКТА</span><span id="historyCount">0 событий</span><b>⌄</b></button>
+        <ol class="history-list hidden" id="historyList"></ol>
+      </section>
+    </section>
+
+    <section class="result hidden" id="resultView">
+      <div class="result-heading"><span class="eyebrow">КОНФЛИКТ ЗАВЕРШЁН</span><h1 id="resultTitle">Поле изменилось</h1><p id="resultSummary"></p></div>
+      <div class="result-grid">
+        <div class="outcome-card"><span class="eyebrow">ИСХОД</span><div class="outcome-seal" id="outcomeSeal">A</div><h2 id="outcomeName"></h2><p id="outcomeText"></p></div>
+        <div class="score-card"><span class="eyebrow">СЕМЬ ОСЕЙ РЕЗУЛЬТАТА</span><div id="scoreBars"></div></div>
+        <div class="lesson-card"><span class="eyebrow">РАЗБОР</span><h2 id="lessonTitle"></h2><p id="lessonText"></p><div class="turning-point" id="turningPoint"></div></div>
+      </div>
+      <div class="result-actions"><button class="primary-button" id="playAgainButton">СЫГРАТЬ ЕЩЁ РАЗ <span>↻</span></button><button class="secondary-button" id="resultModelButton">Посмотреть модель</button></div>
+    </section>
+  </main>
+
+  <dialog id="modelDialog">
+    <button class="dialog-close" id="closeModelButton" aria-label="Закрыть">×</button>
+    <span class="eyebrow">КАК РАБОТАЕТ СИМУЛЯЦИЯ</span>
+    <h2>Компактная модель состояния</h2>
+    <p>Каждый ход сначала меняет ситуацию немедленно, затем оставляет стратегический след. ИИ оценивает, выгодно ли продолжать давление.</p>
+    <div class="formula-box"><code>Pressure = Power × Credibility × Uncertainty + Control</code><code>Cost = Witnesses + Evidence + Allies + Institution + Fearₐ</code><code>Continue, если Expected Benefit − Cost &gt; Exit Threshold</code></div>
+    <h3>Пять ключевых переменных</h3>
+    <dl class="model-list">
+      <div><dt>Fear</dt><dd>Усиливается опасностью и неизвестностью; ухудшает контроль при низком самообладании.</dd></div>
+      <div><dt>Control</dt><dd>Кто задаёт темп. Время, варианты и третьи стороны возвращают инициативу защитнику.</dd></div>
+      <div><dt>Reputation</dt><dd>Делает угрозу правдоподобной. Неисполненная публичная угроза создаёт долг репутации.</dd></div>
+      <div><dt>Autonomy</dt><dd>Долгосрочная способность выбирать. Уступка может снизить риск сейчас, но уменьшить её.</dd></div>
+      <div><dt>Escalation</dt><dd>Стадия конфликта, а не счёт урона. Чем она выше, тем дороже ошибки обеих сторон.</dd></div>
+    </dl>
+    <p class="model-note">В Explain-режиме после каждого действия видны точные модификаторы и решение ИИ.</p>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
