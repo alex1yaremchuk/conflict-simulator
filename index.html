@@ -75,6 +75,11 @@
           </div>
           <p class="situation-text" id="situationText"></p>
 
+          <div class="demand-card" id="demandCard">
+            <div><span class="eyebrow">ТЕКУЩЕЕ ТРЕБОВАНИЕ</span><strong id="demandLabel">Отдать блокнот</strong></div>
+            <span class="demand-status" id="demandStatus">АКТИВНО</span>
+          </div>
+
           <div class="control-block">
             <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
             <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
@@ -101,7 +106,7 @@
           <div class="actor-title"><span class="actor-symbol">D</span><div><span class="eyebrow">DEFENDER · ВЫ</span><h2>Чик</h2></div></div>
           <div class="metric-list" id="defenderMetrics"></div>
           <div class="field-card" id="fieldCard"><span>Игровое поле</span><strong id="fieldLabel">Один на один</strong><p id="fieldDescription">Изоляция усиливает физическое преимущество агрессора.</p></div>
-          <div class="cost-card"><span>Цена продолжения для агрессора</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div><p id="debtLabel">Reputation Debt: нет</p></div>
+          <div class="cost-card"><span>Цена продолжения для агрессора</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div><p id="debtLabel">Связанных ставок нет</p><p id="repeatRiskLabel">Риск повторного давления: средний</p></div>
         </aside>
       </div>
 
@@ -121,7 +126,7 @@
       <div class="result-grid">
         <div class="outcome-card"><span class="eyebrow">ИСХОД</span><div class="outcome-seal" id="outcomeSeal">A</div><h2 id="outcomeName"></h2><p id="outcomeText"></p></div>
         <div class="score-card"><span class="eyebrow">СЕМЬ ОСЕЙ РЕЗУЛЬТАТА</span><div id="scoreBars"></div></div>
-        <div class="lesson-card"><span class="eyebrow">ПРИЧИННАЯ ЦЕПОЧКА</span><h2 id="lessonTitle"></h2><ol class="causal-chain" id="causalChain"></ol><div class="turning-point" id="turningPoint"></div><p class="alternative" id="alternativeText"></p></div>
+        <div class="lesson-card"><span class="eyebrow">ПРИЧИННАЯ ЦЕПОЧКА</span><h2 id="lessonTitle"></h2><ol class="causal-chain" id="causalChain"></ol><div class="turning-point" id="turningPoint"></div><p class="alternative" id="alternativeText"></p><div class="world-reveal" id="worldReveal"></div></div>
       </div>
       <div class="result-actions"><button class="primary-button" id="playAgainButton">СЫГРАТЬ ЕЩЁ РАЗ <span>↻</span></button><button class="secondary-button" id="resultModelButton">Посмотреть модель</button></div>
     </section>
