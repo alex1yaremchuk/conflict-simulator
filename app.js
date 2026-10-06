@@ -83,14 +83,14 @@ function pressure(s) {
 }
 function futureBenefit(s) { return +(s.futureDemand * WEIGHTS.futureDemand + Math.max(0, 10 - s.autonomy) * WEIGHTS.lostAutonomy).toFixed(1); }
 function netIncentive(s) { return +(pressure(s) + futureBenefit(s) - externalCost(s) * WEIGHTS.costIncentive).toFixed(1); }
-function stressLoad(s) { return Math.max(0, s.defender.fear - s.defender.selfControl); }
+function stressLoad(s) { return Math.max(0, +(s.defender.fear - s.defender.selfControl - s.defender.resolve * .2).toFixed(1)); }
 function formulaLine(s) { return `Pressure ${pressure(s)} + future benefit ${futureBenefit(s)} − external cost ${externalCost(s)}×${WEIGHTS.costIncentive} = net incentive ${netIncentive(s)}.`; }
 
 function stressAftermath(s, action) {
   const overload = stressLoad(s);
   if (!action.assertive || overload < 2) return null;
   apply(s, { control: 1, psychologicalCost: 1 });
-  return `Стресс-нагрузка = Fear ${s.defender.fear} − Self-Control ${s.defender.selfControl} = ${overload}: точное действие далось труднее, Control +1 агрессору.`;
+  return `Стресс-нагрузка = Fear ${s.defender.fear} − Self-Control ${s.defender.selfControl} − Resolve ${s.defender.resolve}×0.2 = ${overload}: точное действие далось труднее, Control +1 агрессору.`;
 }
 
 const ACTION_RULES = {
@@ -305,7 +305,7 @@ function render() {
   $("resourceStrip").innerHTML = resources.map(([k,v]) => `<div class="resource-item ${k === "Rep. Debt" ? "debt" : ""}"><span>${k}</span><strong>${v}</strong></div>`).join("");
   $("effectChips").innerHTML = state.effects.map(e => `<span class="effect-chip ${/−|отступает|exit|снижен|сохраняется/i.test(e) ? "good" : /\+|растёт|penalty/i.test(e) ? "bad" : ""}">${e}</span>`).join("");
   $("debugPanel").classList.toggle("hidden", !debugEnabled);
-  $("debugText").textContent = state.debug || `Начальное состояние рассчитано функциями движка.\n${formulaLine(state)}\nStress load = max(0, Fear ${state.defender.fear} − Self-Control ${state.defender.selfControl}) = ${stressLoad(state)}.\nWorld seed: ${state.seed}.`;
+  $("debugText").textContent = state.debug || `Начальное состояние рассчитано функциями движка.\n${formulaLine(state)}\nStress load = max(0, Fear ${state.defender.fear} − Self-Control ${state.defender.selfControl} − Resolve ${state.defender.resolve}×0.2) = ${stressLoad(state)}.\nWorld seed: ${state.seed}.`;
   $("debugFormula").textContent = `P=${pressure(state)} · C=${externalCost(state)} · NET=${netIncentive(state)} · DEBT=${state.debt}`;
 
   const actions = $("actionGrid"); actions.innerHTML = "";
