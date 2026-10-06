@@ -5,18 +5,18 @@ const SCENARIO = {
   stages: ["PROBE", "BOUNDARY TEST", "THREAT", "RESISTANCE", "PUNISHMENT", "ESCALATION", "COALITION", "DETERRENCE", "EXIT"],
   base: { aggressor: { power: 7, reputation: 7 }, defender: { reputation: 2, allies: 2, resolve: 5, selfControl: 6, fear: 6 } },
   actions: [
-    { id: "comply", icon: "↓", name: "Уступить", hint: "Выполнить текущее требование и снизить риск сейчас", risk: 1, profile: ["− Danger сейчас", "− Autonomy", "+ Будущее давление"] },
-    { id: "refuse", icon: "—", name: "Отказать", hint: "Не принять чужое правило", risk: 3, assertive: true, profile: ["+ Autonomy", "+ Escalation", "+ Threat Debt"] },
-    { id: "delay", icon: "◷", name: "Тянуть время", hint: "Дождаться движения в коридоре", risk: 2, profile: ["+ Время", "+ Witnesses", "− Control"] },
-    { id: "leave", icon: "↗", name: "Уйти", hint: "Попытаться физически выйти из сцены", risk: 2, assertive: true, profile: ["− Danger", "+ Safety", "зависит от Control"] },
-    { id: "witnesses", icon: "◎", name: "Искать свидетелей", hint: "Сделать сцену публичной", risk: 1, profile: ["+ External Cost", "− Control", "возможна изоляция"] },
-    { id: "document", icon: "▣", name: "Зафиксировать", hint: "Создать сохраняющееся доказательство", risk: 2, assertive: true, profile: ["+ Evidence", "+ External Cost", "риск обнаружения"] },
-    { id: "appeal", icon: "⌂", name: "Обратиться к взрослым", hint: "Превратить накопленную опору в действие", risk: 2, profile: ["+ Institution", "+ Long-term safety", "нужны основания"] },
-    { id: "coalition", icon: "⋈", name: "Начать коалицию", hint: "Позвать одного человека сейчас и договориться на будущее", risk: 2, profile: ["+ Immediate Ally", "+ Coalition потом", "требует времени"] },
-    { id: "boundary", icon: "□", name: "Обозначить границу", hint: "Ясно назвать неприемлемое", risk: 2, assertive: true, profile: ["+ Autonomy", "+ Reputation", "+ Debt при слабой опоре"] },
-    { id: "deescalate", icon: "≈", name: "Снизить градус", hint: "Не подчиниться и убрать публичный вызов", risk: 1, profile: ["− Danger", "− Escalation", "не создаёт опору"] },
-    { id: "observe", icon: "◇", name: "Наблюдать", hint: "Получить сигнал о скрытом состоянии", risk: 1, profile: ["− Uncertainty", "− Fear", "+ время агрессору"] },
-    { id: "offerExit", icon: "↔", name: "Предложить выход", hint: "Дать отступить без потери лица", risk: 1, profile: ["использует External Cost", "снимает Debt", "− Escalation"] }
+    { id: "comply", group: "respond", icon: "↓", name: "Уступить", hint: "Выполнить текущее требование и снизить риск сейчас", risk: 1, profile: ["− Danger сейчас", "− Autonomy", "+ Будущее давление"] },
+    { id: "refuse", group: "respond", icon: "—", name: "Отказать", hint: "Не принять чужое правило", risk: 3, assertive: true, profile: ["+ Autonomy", "+ Escalation", "угроза вероятнее"] },
+    { id: "boundary", group: "respond", icon: "□", name: "Обозначить границу", hint: "Ясно назвать неприемлемое", risk: 2, assertive: true, profile: ["+ Autonomy", "+ Reputation при опоре", "риск проверки"] },
+    { id: "deescalate", group: "respond", icon: "≈", name: "Снизить градус", hint: "Не подчиниться и убрать публичный вызов", risk: 1, profile: ["− Danger", "− Escalation", "не создаёт опору"] },
+    { id: "offerExit", group: "respond", icon: "↔", name: "Предложить выход", hint: "Дать отступить без потери лица", risk: 1, profile: ["использует External Cost", "снимает Debt", "− Escalation"] },
+    { id: "observe", group: "field", icon: "◇", name: "Наблюдать", hint: "Получить сигнал о скрытом состоянии", risk: 1, profile: ["− Uncertainty", "− Fear", "+ время агрессору"] },
+    { id: "delay", group: "field", icon: "◷", name: "Тянуть время", hint: "Дождаться движения в коридоре", risk: 2, profile: ["+ Время", "+ Witnesses", "− Control"] },
+    { id: "leave", group: "field", icon: "↗", name: "Уйти", hint: "Попытаться физически выйти из сцены", risk: 2, assertive: true, profile: ["− Danger", "+ Safety", "важна опора рядом"] },
+    { id: "witnesses", group: "field", icon: "◎", name: "Искать свидетелей", hint: "Сделать сцену публичной", risk: 1, profile: ["+ External Cost", "− Control", "возможна изоляция"] },
+    { id: "document", group: "field", icon: "▣", name: "Зафиксировать", hint: "Создать сохраняющееся доказательство", risk: 2, assertive: true, profile: ["+ Evidence", "+ External Cost", "риск обнаружения"] },
+    { id: "coalition", group: "field", icon: "⋈", name: "Начать коалицию", hint: "Позвать одного человека сейчас и договориться на будущее", risk: 2, profile: ["+ Immediate Ally", "+ Coalition потом", "требует времени"] },
+    { id: "appeal", group: "field", icon: "⌂", name: "Обратиться к взрослым", hint: "Превратить накопленную опору в действие", risk: 2, profile: ["+ Institution", "+ Long-term safety", "нужны основания"] }
   ]
 };
 
@@ -45,7 +45,7 @@ function chooseWorld(seed) {
     resolve: Math.round(between(4, 8)), fear: Math.round(between(2, 5)), alliesNear: Math.floor(between(0, 2.99)), weapons: 0,
     witnessReliability: between(.50, .92), institutionQuality: between(.42, .92), detection: Math.round(between(2, 4)),
     bluff: between(.32, .94), needForFace: between(.28, .96), fearOfInstitution: between(.30, .92), exploitation: between(.28, .92),
-    objective: r() > .48 ? "контроль и проверка подчинения" : "получение вещи с минимальными издержками"
+    objective: r() > .48 ? "control" : "material"
   };
 }
 
@@ -57,7 +57,7 @@ function freshState(seed = randomSeed()) {
     physicalSafety: 8, longTermSafety: 5, psychologicalCost: 2, appealPenalty: 0,
     aggressor: { ...SCENARIO.base.aggressor, resolve: world.resolve, fear: world.fear, allies: world.alliesNear, weapons: world.weapons },
     defender: { ...SCENARIO.base.defender, institution: 0 },
-    observations: 0, signals: [], intel: { resolve: null, allies: null, weapons: null, fear: null },
+    observations: 0, signals: [], intel: { resolve: null, allies: null, weapons: null, fear: null, bluff: null, face: null, institutionSensitivity: null },
     currentDemand: { id: "notebook", label: "Отдать блокнот", status: "active", objective: "получить блокнот" },
     currentThreat: null, demandHistory: [], possibleNextDemand: { id: "carry_bag", label: "Понести рюкзак до выхода" }, pendingDecision: null,
     memory: { compliances: 0, publicMoves: 0, emptyBoundaries: 0, institutionWorked: 0 }, complianceProcessed: false, isolationAttempted: false,
@@ -81,15 +81,37 @@ function apply(s, changes) {
 
 function result(text, effects, debug, cause, weight = 1) { return { text, effects, debug, cause, weight }; }
 function totalDebt(s) { return clamp(s.threatDebt + s.statusPressure); }
+function objectiveLabel(s) { return s.world.objective === "control" ? "контроль и проверка подчинения" : "получение вещи с минимальными издержками"; }
+function exitRoute(s) { return +(6 - s.control + s.witnesses * .8 + s.immediateAllies * 2 + s.field * .6 + s.defender.allies * .1).toFixed(1); }
+function repeatPressure(s) {
+  const objective = s.world.objective === "control" ? 1.2 : -.4;
+  return clamp(+(2 + s.futureDemand * .55 + s.memory.compliances * 1.5 + s.world.exploitation + objective - s.coalition * .8 - s.defender.institution * s.world.institutionQuality * .9 - s.evidence * .35 - s.defender.reputation * .18).toFixed(1));
+}
+function repeatRiskLabel(s) { const risk = repeatPressure(s); return risk < 3.5 ? "низкий" : risk < 6.5 ? "средний" : "высокий"; }
+function repeatDrivers(s, revealObjective = false) {
+  const drivers = [];
+  if (s.memory.compliances > 0) drivers.push("успешные уступки ↑");
+  if (s.currentDemand.id !== "notebook") drivers.push("цепочка требований ↑");
+  if (revealObjective && s.world.objective === "control") drivers.push("цель контроля ↑");
+  if (s.coalition > 0) drivers.push("коалиция ↓");
+  if (s.defender.institution > 0) drivers.push("институт ↓");
+  if (s.evidence > 0) drivers.push("доказательства ↓");
+  if (s.defender.reputation >= 4) drivers.push("репутация границ ↓");
+  return drivers.slice(0, 3).join(" · ") || "устойчивых сигналов пока мало";
+}
 
 function externalCost(s) {
   return +(s.witnesses * s.world.witnessReliability * WEIGHTS.witnesses + s.evidence * WEIGHTS.evidence + s.immediateAllies * 1.2 + s.defender.allies * .3 + s.coalition * .6 + s.defender.institution * s.world.institutionQuality * WEIGHTS.institution + s.aggressor.fear * WEIGHTS.aggressorFear).toFixed(1);
 }
 function pressure(s) {
   const credibility = (s.aggressor.reputation + s.aggressor.resolve) / 20;
-  return +(s.aggressor.power * credibility + s.uncertainty * WEIGHTS.uncertainty + Math.max(0, s.control) * WEIGHTS.control + totalDebt(s) * WEIGHTS.debt + s.memory.compliances * .35 + s.aggressor.weapons * WEIGHTS.weapons).toFixed(1);
+  const complianceWeight = s.world.objective === "control" ? .55 : .18;
+  return +(s.aggressor.power * credibility + s.uncertainty * WEIGHTS.uncertainty + Math.max(0, s.control) * WEIGHTS.control + totalDebt(s) * WEIGHTS.debt + s.memory.compliances * complianceWeight + s.aggressor.weapons * WEIGHTS.weapons).toFixed(1);
 }
-function futureBenefit(s) { return +(s.futureDemand * WEIGHTS.futureDemand + Math.max(0, 10 - s.autonomy) * WEIGHTS.lostAutonomy).toFixed(1); }
+function futureBenefit(s) {
+  const demandWeight = s.world.objective === "control" ? .55 : .30;
+  return +(s.futureDemand * demandWeight + Math.max(0, 10 - s.autonomy) * WEIGHTS.lostAutonomy).toFixed(1);
+}
 function netIncentive(s) { return +(pressure(s) + futureBenefit(s) - externalCost(s) * WEIGHTS.costIncentive).toFixed(1); }
 function stressLoad(s) { return Math.max(0, +(s.defender.fear - s.defender.selfControl - s.defender.resolve * .2).toFixed(1)); }
 function formulaLine(s) { return `Pressure ${pressure(s)} + future benefit ${futureBenefit(s)} − external cost ${externalCost(s)}×${WEIGHTS.costIncentive} = net incentive ${netIncentive(s)}.`; }
@@ -114,8 +136,8 @@ const ACTION_RULES = {
     const support = +(s.witnesses * s.world.witnessReliability + s.immediateAllies * 1.5 + s.defender.allies * .3 + s.defender.institution * s.world.institutionQuality + s.evidence * .3).toFixed(1);
     const exposed = support < 4.5;
     s.currentDemand.status = "refused";
-    apply(s, { "defender.fear": exposed ? 2 : -1, autonomy: 1, control: exposed ? 1 : -2, escalation: 1, danger: exposed ? 3 : 0, "defender.reputation": 1, psychologicalCost: 1, threatDebt: s.currentThreat ? 2 : 1, statusPressure: s.witnesses > 0 ? 1 : 0 });
-    return result(exposed ? "Вы отказываете без достаточной видимой опоры. Граница ясна, но теперь Старшему выгодно проверить, подкреплены ли слова ресурсами." : "Вы отказываете, и за словами уже видна опора. Публичная угроза связывает Старшего сильнее, чем вас.", ["Autonomy +1", `Support ${support}`, `Danger ${signed(exposed ? 3 : 0)}`, "Threat Debt растёт"], `Опора отказа = witnesses×reliability + immediate allies×1.5 + allies×0.3 + institution×quality + evidence×0.3 = ${support}. Порог 4.5.`, exposed ? "Прямой отказ без достаточной опоры повысил риск эскалации." : "Опора превратила отказ из вызова в достоверную границу.", exposed ? 1 : 3);
+    apply(s, { "defender.fear": exposed ? 2 : -1, autonomy: 1, control: exposed ? 1 : -2, escalation: 1, danger: exposed ? 3 : 0, "defender.reputation": 1, psychologicalCost: 1, statusPressure: s.witnesses > 0 ? 1 : 0 });
+    return result(exposed ? "Вы отказываете без достаточной видимой опоры. Граница ясна, но теперь Старшему выгодно ответить угрозой." : "Вы отказываете, и за словами уже видна опора. Публичный отказ повышает цену следующего хода для Старшего.", ["Autonomy +1", `Support ${support}`, `Danger ${signed(exposed ? 3 : 0)}`, "Угроза вероятнее"], `Опора отказа = witnesses×reliability + immediate allies×1.5 + allies×0.3 + institution×quality + evidence×0.3 = ${support}. Сам отказ не создаёт Threat Debt.`, exposed ? "Прямой отказ без достаточной опоры повысил риск угрозы, но ещё не создал долга угрозы." : "Опора превратила отказ из вызова в достоверную границу.", exposed ? 1 : 3);
   },
   delay(s) {
     const gain = s.turn >= 4 ? 2 : 1, people = s.world.witnessReliability >= .7 ? 1 : 0;
@@ -123,10 +145,10 @@ const ACTION_RULES = {
     return result(people ? "Вы задаёте вопросы и выигрываете время. У открытой двери задерживается ученик." : "Вы выигрываете время, но проходящие мимо пока не хотят вмешиваться.", [`Control ${signed(-gain)}`, `Witnesses +${people}`, "Uncertainty −1", "Psychological cost +1"], `Ценность времени=${gain}; свидетель зависит от скрытой готовности окружения ${s.world.witnessReliability.toFixed(2)}.`, people ? "Время добавило наблюдателя и уменьшило частный контроль сцены." : "Время снизило темп, но не гарантировало поддержку.", 1);
   },
   leave(s) {
-    const route = +(6 - s.control + s.witnesses + s.defender.allies * .4 + s.field).toFixed(1);
+    const route = exitRoute(s);
     if (route >= 5) {
       apply(s, { control: -3, danger: -3, "defender.fear": -2, autonomy: 1 }); s.outcome = "safe-exit";
-      return result("Вы выходите к людной лестнице. Вы не доказали, кто прав, — вы прекратили опасную сцену.", ["Safe exit", "Danger −3", "Autonomy +1", "Control −3"], `Маршрут = 6 − control + witnesses + allies×0.4 + field = ${route}; нужен ≥ 5.`, "Доступный маршрут позволил прекратить сцену без подчинения.", 3);
+      return result("Вы выходите к людной лестнице. Вы не доказали, кто прав, — вы прекратили опасную сцену.", ["Safe exit", "Danger −3", "Autonomy +1", "Control −3"], `Маршрут = 6 − control + witnesses×0.8 + immediate allies×2 + field×0.6 + long-term allies×0.1 = ${route}; нужен ≥ 5.`, "Присутствующая рядом опора и доступный маршрут позволили прекратить сцену без подчинения.", 3);
     }
     apply(s, { control: 2, danger: 2, "defender.fear": 2, escalation: 1, physicalSafety: -1 });
     return result("Он блокирует путь. Попытка выйти показала, что пространство пока контролирует он.", ["Control +2", "Danger +2", "Fear +2", "Safety −1"], `Маршрут ${route} < 5: контроль и изоляция перевесили доступные пути.`, "Попытка выхода при высоком Control оказалась рискованной.", 1);
@@ -135,7 +157,7 @@ const ACTION_RULES = {
     const gain = s.world.witnessReliability >= .72 ? 2 : 1;
     const backlash = s.aggressor.resolve >= 7 && s.field === 0 ? 1 : 0;
     s.memory.publicMoves += 1;
-    apply(s, { witnesses: gain, field: 1, uncertainty: -1, control: -2, "defender.fear": -1, longTermSafety: 1, danger: backlash, statusPressure: s.currentThreat ? 1 : 0 });
+    apply(s, { witnesses: gain, field: 1, uncertainty: -1, control: -2, "defender.fear": -1, longTermSafety: 1, danger: backlash, statusPressure: s.currentThreat?.status === "active" ? 1 : 0 });
     return result(backlash ? "Вы делаете сцену заметной. Люди смотрят, но Старший воспринимает это как публичный вызов." : "Вы смещаетесь к открытой двери и говорите громче. Давление больше не полностью частное.", [`Witnesses +${gain}`, "External Cost растёт", "Control −2", `Danger ${signed(backlash)}`], `Свидетели зависят от скрытой надёжности ${s.world.witnessReliability.toFixed(2)}. При resolve ≥ 7 краткосрочный Danger +1.`, "Конфликт стал публичнее, поэтому открытое давление подорожало.", 2);
   },
   document(s) {
@@ -153,8 +175,8 @@ const ACTION_RULES = {
     }
     if (score >= 4.5) {
       s.memory.institutionWorked += 1;
-      apply(s, { "defender.institution": 2, control: -2, "defender.allies": 1, "defender.fear": -1, longTermSafety: 2, danger: -1, field: 1 });
-      return result("Взрослый временно разводит вас и обещает разобраться. Это не финал, но у следующего давления уже будут последствия.", ["Institution +2", "Danger −1", "Long-term safety +2", "Временная защита"], `Appeal score ${score}: частичное вмешательство при 4.5–7.49; quality=${s.world.institutionQuality.toFixed(2)}.`, "Обращение создало временную защиту, но потребует дальнейшей опоры.", 2);
+      apply(s, { "defender.institution": 2, control: -2, "defender.allies": 1, "defender.fear": -1, longTermSafety: 2, danger: -1, field: 1 }); s.outcome = "temporary-institutional";
+      return result("Взрослый временно разводит вас и обещает разобраться. Текущая сцена закончена, но риск следующей встречи остаётся.", ["Encounter ends", "Institution +2", "Danger −1", "Long-term safety +2"], `Appeal score ${score}: частичное вмешательство при 4.5–7.49; quality=${s.world.institutionQuality.toFixed(2)}.`, "Взрослый физически завершил эту встречу; стратегическая проблема перенесена в следующий encounter.", 3);
     }
     apply(s, { "defender.institution": 1, control: -1, psychologicalCost: 1, danger: 1 });
     return result("Взрослый воспринимает это как обычную ссору и советует «просто разойтись». След обращения остаётся, но защита пока слабая.", ["Institution +1", "Danger +1", "Psychological cost +1", "Нужны основания"], `Appeal score ${score} < 4.5: оснований недостаточно.`, "Слабое обращение показало ограничения института и необходимость оснований.", 1);
@@ -167,8 +189,8 @@ const ACTION_RULES = {
   boundary(s) {
     const support = +(s.witnesses * s.world.witnessReliability + s.immediateAllies * 1.5 + s.defender.allies * .3 + s.defender.reputation).toFixed(1), credible = support >= 4.5;
     if (!credible) s.memory.emptyBoundaries += 1;
-    apply(s, { autonomy: 1, "defender.reputation": credible ? 1 : -1, control: credible ? -2 : 0, escalation: credible ? 0 : 1, "defender.fear": credible ? -1 : 1, threatDebt: credible ? 0 : 1 });
-    return result(credible ? "Вы коротко называете границу — и за словами видна опора." : "Вы называете границу. Она сохраняет автономию, но без видимой опоры повышает ставку.", ["Autonomy +1", credible ? "Reputation +1" : "Reputation −1", `Support ${support}`, `Debt ${signed(credible ? 0 : 1)}`], `Достоверность = witnesses×reliability + immediate allies×1.5 + allies×0.3 + reputation = ${support}; нужен ≥ 4.5.`, credible ? "Граница стала достоверной благодаря внешней опоре." : "Граница сохранила автономию, но создала риск проверки.", credible ? 2 : 1);
+    apply(s, { autonomy: 1, "defender.reputation": credible ? 1 : -1, control: credible ? -2 : 0, escalation: credible ? 0 : 1, "defender.fear": credible ? -1 : 1, statusPressure: !credible && s.witnesses > 0 ? 1 : 0 });
+    return result(credible ? "Вы коротко называете границу — и за словами видна опора." : "Вы называете границу. Она сохраняет автономию, но без видимой опоры повышает вероятность проверки.", ["Autonomy +1", credible ? "Reputation +1" : "Reputation −1", `Support ${support}`, credible ? "Граница достоверна" : "Угроза вероятнее"], `Достоверность = witnesses×reliability + immediate allies×1.5 + allies×0.3 + reputation = ${support}; нужен ≥ 4.5. Граница не создаёт Threat Debt.`, credible ? "Граница стала достоверной благодаря внешней опоре." : "Граница сохранила автономию, но создала риск проверки.", credible ? 2 : 1);
   },
   deescalate(s) {
     apply(s, { escalation: -1, danger: -2, control: -1, "defender.fear": -1, autonomy: s.autonomy < 4 ? -1 : 0 });
@@ -179,12 +201,15 @@ const ACTION_RULES = {
     let signal;
     if (s.currentThreat?.status === "active") {
       signal = s.world.bluff >= .68 ? "Угроза остаётся расплывчатой и меняется в деталях — признаки блефа заметны." : "Он повторяет одно последствие без колебаний; угроза выглядит подготовленной.";
+      s.intel.bluff = s.world.bluff >= .68 ? "вероятен" : "маловероятен";
       s.intel.resolve = s.world.resolve >= 7 ? "скорее высокая" : "ограниченная";
     } else if (s.witnesses > 0) {
       signal = s.world.needForFace >= .65 ? "При чужих взглядах он заметно жёстче: публичная потеря лица для него важна." : "Свидетели заставляют его осторожничать, а не демонстрировать жёсткость.";
+      s.intel.face = s.world.needForFace >= .65 ? "высокая чувствительность" : "умеренная чувствительность";
       s.intel.fear = s.world.fearOfInstitution >= .65 ? "боится последствий" : "слабо реагирует";
+      s.intel.institutionSensitivity = s.world.fearOfInstitution >= .65 ? "высокая" : "низкая";
     } else if (s.observations === 1) {
-      if (s.world.alliesNear === 0) { signal = "Похоже, его друзья сейчас не рядом."; s.intel.allies = "скорее один"; }
+      if (s.world.alliesNear === 0) { signal = "Похоже, его друзья сейчас не рядом."; s.intel.allies = "скорее никого"; }
       else { signal = "Он смотрит в конец коридора, будто ждёт своих."; s.intel.allies = "возможны рядом"; }
     } else if (s.observations === 2) {
       if (s.world.fear >= 4) { signal = "Он следит за дверью учительской чаще, чем за вами."; s.intel.fear = "боится последствий"; }
@@ -219,7 +244,7 @@ const CONTEXT_ACTIONS = {
   ],
   newDemand: [
     { id: "complyNew", icon: "↓", name: "Выполнить новое требование", hint: "Закончить сцену сейчас, подтвердив ожидание подчинения", risk: 1, profile: ["− Danger", "− Autonomy", "+ Repeat Pressure"] },
-    { id: "refuseNew", icon: "—", name: "Остановить цепочку", hint: "Отказать уже после первой уступки", risk: 3, profile: ["+ Autonomy", "+ Threat Debt", "+ Danger"] },
+    { id: "refuseNew", icon: "—", name: "Остановить цепочку", hint: "Отказать уже после первой уступки", risk: 3, profile: ["+ Autonomy", "+ Danger", "угроза вероятнее"] },
     { id: "delayNew", icon: "◷", name: "Не отвечать сразу", hint: "Выиграть время и показать, что уступка не стала правилом", risk: 2, profile: ["− Control", "− Expected Compliance"] },
     { id: "publicizeNew", icon: "◎", name: "Повторить вслух", hint: "Сделать новое требование слышимым другим", risk: 2, profile: ["+ Witnesses", "+ Evidence", "+ Status Pressure"] }
   ]
@@ -244,12 +269,14 @@ function resolveContext(s, id) {
       return result("Вы зовёте одного из свидетелей с собой. Разговор может переместиться, но один человек остаётся непосредственной опорой.", ["Immediate Ally +1", "Witnesses −1", "Control −1", "Fear −1"], "Свидетель преобразован в непосредственного союзника; изоляция не состоялась.", "Защитник изменил предложенное поле: не отказался от движения, но не остался один.", 4);
     }
     if (id === "inspectIsolation") {
+      if (s.pendingDecision.inspected) return { ...result("Вы уже проверили пространство. Теперь нужно выбрать, где и с кем продолжится сцена.", ["Нужно принять решение"], "Повторный Inspect заблокирован для этой дилеммы.", "Полученной информации достаточно; дальнейшее ожидание только отдало бы темп агрессору.", 0), keepPending: true };
       const signal = s.world.alliesNear > 0 ? "За лестницей мелькают его знакомые — идти туда заметно опаснее." : "За лестницей никого не видно, но вы потеряете текущих свидетелей.";
+      s.pendingDecision.inspected = true;
       s.signals.unshift(signal); apply(s, { uncertainty: -1, control: 1, psychologicalCost: 1 });
       return { ...result(`Вы не двигаетесь сразу и оцениваете пространство. ${signal}`, ["Uncertainty −1", "Control +1", "Решение остаётся открытым"], "Контекстное наблюдение уточнило именно риск предлагаемого места.", "Защитник купил более точную оценку поля ценой времени.", 2), keepPending: true };
     }
     if (id === "leaveOther") {
-      const route = 6 - s.control + s.witnesses + s.immediateAllies * 2;
+      const route = exitRoute(s);
       s.pendingDecision = null;
       if (route >= 5) { apply(s, { danger: -3, control: -2, "defender.fear": -2 }); s.outcome = "safe-exit"; return result("Вы уходите к лестнице в противоположную сторону. Текущая сцена закончена безопасно; риск повторения зависит от накопленных ресурсов.", ["Safe Exit", "Danger −3", "Repeat risk сохраняется"], `Route=${route} ≥ 5. Safe Exit не добавляет Long-term Safety автоматически.`, "Защитник вышел из сцены, не разрешив долгосрочную проблему автоматически.", 4); }
       apply(s, { control: 1, danger: 1, "defender.fear": 1 });
@@ -264,9 +291,9 @@ function resolveContext(s, id) {
       return result("Вы выполняете и второе требование. Сцена заканчивается без нового ущерба, но ожидание будущего подчинения резко укрепляется.", ["Danger −2", "Autonomy −2", "Repeat Pressure +2", "Scene ends"], "Вторая уступка закрыла новое требование и увеличила память Expected Compliance.", "Повторная уступка завершила сцену, но приблизила систему контроля.", 4);
     }
     if (id === "refuseNew") {
-      s.currentDemand.status = "refused"; s.currentThreat = { id: `threat-${s.turn}`, demandId: s.currentDemand.id, consequence: "наказать за отказ", status: "active" };
-      apply(s, { autonomy: 1, danger: 2, "defender.fear": 1, threatDebt: 2, statusPressure: s.witnesses > 0 ? 1 : 0 });
-      return result("Вы отделяете первую уступку от общего правила: «Больше ничего». Новое требование встречает явный отказ.", ["Autonomy +1", "Danger +2", "Threat Debt +2"], "Отказ относится к новому Demand ID, а не возвращает старое требование.", "Защитник остановил превращение разовой уступки в открытую цепочку требований.", 4);
+      s.currentDemand.status = "refused";
+      apply(s, { autonomy: 1, danger: 2, "defender.fear": 1, statusPressure: s.witnesses > 0 ? 1 : 0 });
+      return result("Вы отделяете первую уступку от общего правила: «Больше ничего». Новое требование встречает явный отказ.", ["Autonomy +1", "Danger +2", "Угроза вероятнее"], "Отказ относится к новому Demand ID и сам по себе не создаёт Threat Debt.", "Защитник остановил превращение разовой уступки в открытую цепочку требований.", 4);
     }
     if (id === "delayNew") {
       s.memory.compliances = Math.max(0, s.memory.compliances - 1);
@@ -283,20 +310,22 @@ function resolveContext(s, id) {
 }
 
 function aggressorResponse(s) {
-  if (s.outcome) return result("Сцена получила устойчивый выход.", [], formulaLine(s), "", 0);
+  if (s.outcome) return result("Текущая сцена завершена.", [], formulaLine(s), "", 0);
   const cost = externalCost(s), net = netIncentive(s);
   if (s.currentDemand.status === "complied" && !s.complianceProcessed) {
     s.complianceProcessed = true;
-    const pressesAgain = s.world.exploitation + s.memory.compliances * .12 >= .68;
+    const objectiveBias = s.world.objective === "control" ? .24 : -.22;
+    const repeatScore = +(s.world.exploitation + s.memory.compliances * .10 + objectiveBias).toFixed(2);
+    const pressesAgain = repeatScore >= .70;
     if (!pressesAgain) {
       apply(s, { control: -1, danger: -2, "aggressor.fear": 1 }); s.outcome = "temporary-release";
-      return result("Он забирает блокнот и отпускает вас. Текущая опасность закончилась, но успешное давление повысило риск повторения.", ["Scene ends", "Danger −2", "Repeat pressure остаётся"], `${formulaLine(s)} Материальная цель выполнена; exploitation ${s.world.exploitation} + compliance memory ${s.memory.compliances}×0.12 < 0.68.`, "Уступка закрыла текущее требование, но научила агрессора, что давление работает.", 3);
+      return result("Он забирает блокнот и отпускает вас. Текущая опасность закончилась, но успешное давление повысило риск повторения.", ["Scene ends", "Danger −2", "Repeat pressure остаётся"], `${formulaLine(s)} Repeat score=${repeatScore}: exploitation ${s.world.exploitation} + compliance ${s.memory.compliances}×0.10 + objective bias ${objectiveBias} < 0.70.`, s.world.objective === "material" ? "Его целью была вещь с минимальными издержками; получив её, он закончил сцену." : "Даже при цели контроля склонность продолжать оказалась недостаточной, но уступка осталась в памяти.", 3);
     }
     s.currentDemand = { ...s.possibleNextDemand, status: "active", objective: "проверить, распространяется ли подчинение дальше" };
     s.currentThreat = null;
     s.pendingDecision = { type: "newDemand", prompt: "Получив блокнот, он сразу проверяет новую границу: «Теперь понеси мой рюкзак до выхода»." };
     apply(s, { futureDemand: 1, control: 1, danger: 1 });
-    return result(s.pendingDecision.prompt, ["Новое требование", "Future pressure +1", "Control +1"], `${formulaLine(s)} exploitation ${s.world.exploitation} + compliance memory ${s.memory.compliances}×0.12 ≥ 0.68 → проверка новой границы.`, "Успешная уступка изменила следующую стратегию агрессора: материальная цель сменилась проверкой контроля.", 4);
+    return result(s.pendingDecision.prompt, ["Новое требование", "Future pressure +1", "Control +1"], `${formulaLine(s)} Repeat score=${repeatScore}: exploitation ${s.world.exploitation} + compliance ${s.memory.compliances}×0.10 + objective bias ${objectiveBias} ≥ 0.70.`, s.world.objective === "control" ? "Цель контроля и успешная уступка сделали проверку следующей границы естественным продолжением стратегии." : "Материальная цель уже выполнена, но очень высокая склонность к эксплуатации подтолкнула его расширить требование.", 4);
   }
   if (cost >= 13 && totalDebt(s) <= 1) {
     apply(s, { control: -3, danger: -2, "aggressor.fear": 2, escalation: -1, longTermSafety: 1 }); s.outcome = "deterrence";
@@ -308,7 +337,7 @@ function aggressorResponse(s) {
   }
   if (s.witnesses > 0 && s.field < 3 && s.aggressor.resolve >= 6 && s.control >= -2 && !s.isolationAttempted) {
     s.isolationAttempted = true;
-    s.pendingDecision = { type: "isolation", prompt: "Он требует отойти за лестницу, подальше от тех, кто сейчас видит сцену." };
+    s.pendingDecision = { type: "isolation", inspected: false, prompt: "Он требует отойти за лестницу, подальше от тех, кто сейчас видит сцену." };
     return result(s.pendingDecision.prompt, ["Попытка сменить поле", "Нужно ваше решение", "Witnesses пока сохраняются"], `${formulaLine(s)} Resolve ${s.aggressor.resolve} и память publicMoves=${s.memory.publicMoves} запускают попытку изоляции. Штраф ещё не применён.`, "Агрессор попытался вернуть изоляцию, но выбор игрового поля остался за защитником.", 3);
   }
   if (s.evidence >= 2 && s.aggressor.allies > 0 && !s.discredited) {
@@ -328,8 +357,8 @@ function aggressorResponse(s) {
     const punish = s.threatDebt >= 3 && s.escalation >= 3 && s.currentDemand.status !== "complied";
     if (!punish) s.currentThreat = { id: `threat-${s.turn}`, demandId: s.currentDemand.id, consequence: "будет хуже", status: "active" };
     if (punish) { s.currentThreat && (s.currentThreat.status = "carried_out"); s.currentDemand.status = "resolved_by_force"; s.outcome = "coercive-seizure"; }
-    apply(s, { escalation: 1, danger: punish ? 2 : 1, "defender.fear": punish ? 2 : 1, control: 1, physicalSafety: punish ? -2 : 0, "aggressor.reputation": punish ? 1 : 0, threatDebt: punish ? -1 : 1, statusPressure: !punish && s.witnesses > 0 ? 1 : 0 });
-    return result(punish ? "Он толкает вас плечом и силой забирает предмет, подтверждая связанную с требованием угрозу." : `Он повышает голос: «${s.currentDemand.label} — или будет хуже».`, punish ? ["Safety −2", "Fear +2", "Escalation +1", "Threat Debt −1"] : ["Fear +1", "Danger +1", "Threat Debt +1", "Контригра: угроза"], `${formulaLine(s)} Net > 4 и Control ≥ 1 → ${punish ? "исполнение активной угрозы" : "новая угроза"}.`, punish ? "Агрессор заплатил реальную цену, чтобы подтвердить связанную с требованием угрозу." : "Новая угроза усилила давление и создала обязательство её подтвердить.", 2);
+    apply(s, { escalation: 1, danger: punish ? 2 : 1, "defender.fear": punish ? 2 : 1, control: 1, physicalSafety: punish ? -2 : 0, "aggressor.reputation": punish ? 1 : 0, threatDebt: punish ? -s.threatDebt : 1, statusPressure: !punish && s.witnesses > 0 ? 1 : 0 });
+    return result(punish ? "Он толкает вас плечом и силой забирает предмет, подтверждая связанную с требованием угрозу." : `Он повышает голос: «${s.currentDemand.label} — или будет хуже».`, punish ? ["Safety −2", "Fear +2", "Escalation +1", "Threat Debt закрыт"] : ["Fear +1", "Danger +1", "Threat Debt +1", "Контригра: угроза"], `${formulaLine(s)} Net > 4 и Control ≥ 1 → ${punish ? "исполнение активной угрозы" : "новая угроза"}.`, punish ? "Исполнение угрозы закрыло связанный с ней Threat Debt ценой реального ущерба." : "Формула «сделай X, иначе Y» создала Threat Debt.", 2);
   }
   apply(s, { control: -1, "aggressor.fear": 1, danger: -1 });
   return result("Он повторяет требование, но следит за окружением. Давление уже не безусловно.", ["Control −1", "Aggressor Fear +1", "Danger −1"], `${formulaLine(s)} Net недостаточен для дорогой эскалации.`, "Агрессор сохранил лицо, но не нашёл выгодного усиления.", 1);
@@ -377,6 +406,7 @@ function updateSituation() {
 }
 
 function checkEnd() {
+  if (!state.outcome && state.turn > SCENARIO.maxTurns && state.pendingDecision) return;
   if (state.outcome || state.autonomy <= 1 || state.physicalSafety <= 2 || state.turn > SCENARIO.maxTurns) {
     state.ended = true;
     if (!state.outcome) state.outcome = state.autonomy <= 1 ? "submission" : state.physicalSafety <= 2 ? "breakdown" : state.autonomy >= 6 && state.longTermSafety >= 6 ? "contained" : "ambiguous";
@@ -409,6 +439,7 @@ function render() {
   $("controlValue").textContent = state.control === 0 ? "равновесие" : `${signed(Math.abs(state.control))} ${state.control > 0 ? "агрессору" : "защитнику"}`;
   const demandStatuses = { active: "АКТИВНО", complied: "ВЫПОЛНЕНО", refused: "ОТКАЗ", resolved_by_force: "РЕШЕНО СИЛОЙ" };
   $("demandLabel").textContent = state.currentDemand.label;
+  $("threatStatus").textContent = state.currentThreat?.status === "active" ? `Активная угроза: ${state.currentThreat.consequence}` : "Активной угрозы нет";
   $("demandStatus").textContent = demandStatuses[state.currentDemand.status] || state.currentDemand.status.toUpperCase();
   $("demandCard").classList.toggle("resolved", state.currentDemand.status !== "active" && state.currentDemand.status !== "refused");
   const load = stressLoad(state);
@@ -434,8 +465,8 @@ function render() {
   $("externalCostLabel").textContent = cost < 6 ? "Низкая" : cost < 10 ? "Средняя" : "Высокая"; $("externalCostFill").style.width = `${Math.min(100, cost / 15 * 100)}%`;
   const debt = totalDebt(state);
   $("debtLabel").textContent = debt === 0 ? "Связанных ставок нет" : `Debt ${debt} · угроза ${state.threatDebt} / публичная ставка ${state.statusPressure}`;
-  const repeatRisk = state.futureDemand < 4 ? "низкий" : state.futureDemand < 7 ? "средний" : "высокий";
-  $("repeatRiskLabel").textContent = `Риск повторного давления: ${repeatRisk}`;
+  const repeatRisk = repeatRiskLabel(state);
+  $("repeatRiskLabel").textContent = `Риск повторного давления: ${repeatRisk} · ${repeatDrivers(state)}`;
   $("coreMetrics").innerHTML = [["Danger", state.danger], ["Fear", state.defender.fear], ["Autonomy", state.autonomy]].map(([k,v]) => `<div class="core-metric"><span>${k}</span><strong>${v}</strong></div>`).join("");
   const nowResources = [["Witnesses", state.witnesses], ["Immediate Ally", state.immediateAllies], ["Uncertainty", state.uncertainty], ["Threat Debt", state.threatDebt]];
   const nextResources = [["Evidence", state.evidence], ["Coalition", state.coalition], ["Institution", state.defender.institution], ["Repeat Risk", repeatRisk]];
@@ -449,14 +480,28 @@ function render() {
   const actions = $("actionGrid"); actions.innerHTML = "";
   const context = state.pendingDecision;
   $("decisionPanel").classList.toggle("context-mode", !!context);
+  actions.classList.toggle("grouped", !context);
   if (context) actions.innerHTML = `<div class="context-intro"><strong>Ответ на ход агрессора:</strong> ${context.prompt}</div>`;
-  const actionSet = context ? CONTEXT_ACTIONS[context.type] : SCENARIO.actions;
-  actionSet.forEach(action => {
+  const makeButton = action => {
     const distorted = action.assertive && load >= 2, btn = document.createElement("button");
-    btn.className = `action-button${distorted ? " fear-distorted" : ""}`; btn.disabled = context ? (action.id === "bringPerson" && state.witnesses < 1) : !available(action);
+    const contextDisabled = action.id === "bringPerson" && state.witnesses < 1 || action.id === "inspectIsolation" && context?.inspected;
+    btn.className = `action-button${distorted ? " fear-distorted" : ""}`; btn.disabled = context ? contextDisabled : !available(action);
     const profile = action.profile.map(x => `<em class="${/^\+|^− Danger|^− Fear|^− Control|^− Escalation/.test(x) ? "up" : /^− Autonomy|^\+ Danger|^\+ Escalation|^\+ Debt|^\+ Future/.test(x) ? "down" : ""}">${x}</em>`).join("");
-    btn.innerHTML = `<span class="action-icon">${action.icon}</span><span class="risk">риск: ${riskLabel(action)}</span><strong>${action.name}</strong><small>${action.hint}</small><span class="action-profile">${profile}</span>${distorted ? "<span class=\"fear-note\">Страх делает риск субъективно выше</span>" : ""}`;
-    btn.addEventListener("click", () => context ? takeContextAction(action.id) : takeAction(action.id)); actions.appendChild(btn);
+    const exhausted = action.id === "inspectIsolation" && context?.inspected ? "<span class=\"fear-note\">Информация уже получена — выберите решение</span>" : "";
+    btn.innerHTML = `<span class="action-icon">${action.icon}</span><span class="risk">риск: ${riskLabel(action)}</span><strong>${action.name}</strong><small>${action.hint}</small><span class="action-profile">${profile}</span>${distorted ? "<span class=\"fear-note\">Страх делает риск субъективно выше</span>" : ""}${exhausted}`;
+    btn.addEventListener("click", () => context ? takeContextAction(action.id) : takeAction(action.id));
+    return btn;
+  };
+  if (context) CONTEXT_ACTIONS[context.type].forEach(action => actions.appendChild(makeButton(action)));
+  else [
+    { id: "respond", title: "Ответить агрессору", note: "Изменить отношение к его требованию" },
+    { id: "field", title: "Изменить поле", note: "Изменить информацию, пространство и опору" }
+  ].forEach(groupMeta => {
+    const section = document.createElement("section"), grid = document.createElement("div");
+    section.className = `action-group ${groupMeta.id}`; grid.className = "action-group-grid";
+    section.innerHTML = `<div class="action-group-heading"><span>${groupMeta.title}</span><small>${groupMeta.note}</small></div>`;
+    SCENARIO.actions.filter(action => action.group === groupMeta.id).forEach(action => grid.appendChild(makeButton(action)));
+    section.appendChild(grid); actions.appendChild(section);
   });
   $("historyCount").textContent = `${state.history.length} ${state.history.length === 1 ? "событие" : "событий"}`;
   $("historyList").innerHTML = state.history.map(h => `<li><strong>Ход ${h.turn} · ${h.action}</strong><br>${h.text}</li>`).join("");
@@ -465,6 +510,7 @@ function render() {
 const OUTCOMES = {
   "safe-exit": ["Безопасный выход", "Текущая сцена закончена безопасно. Сам по себе выход не решает риск повторения — его определяют Evidence, Coalition и Institution.", "В"],
   "temporary-release": ["Опасность миновала сейчас", "Требование выполнено, и текущая сцена закончилась. Это может быть разумной тактикой; долгосрочный результат зависит от цены повторного давления.", "П"],
+  "temporary-institutional": ["Временное разделение", "Взрослый завершил текущую сцену и развёл стороны. Это реальная защита сейчас, но не окончательное решение риска повторения.", "⌂"],
   "coercive-seizure": ["Угроза исполнена", "Агрессор силой завершил текущее требование. Это необратимое действие заканчивает сцену; физическая безопасность, автономия и риск повторения оцениваются отдельно.", "!"],
   "face-saving": ["Выход без поражения", "Цена давления выросла, а нейтральный повод позволил агрессору остановиться, не подтверждая угрозу.", "↔"],
   deterrence: ["Сдерживание", "Ожидаемая цена продолжения стала выше выгоды. Давление прекратилось без исполнения угрозы.", "С"],
@@ -491,15 +537,28 @@ function describeWorld() {
   const face = state.world.needForFace >= .7 ? "очень чувствителен к публичной потере лица" : "мог отступить без сильной потери лица";
   const institution = state.world.fearOfInstitution >= .65 ? "опасался институциональных последствий" : "слабо боялся формальных последствий";
   const allies = state.world.alliesNear ? `имел рядом потенциальных союзников: ${state.world.alliesNear}` : "не имел друзей рядом";
-  const perception = state.uncertainty >= 5 ? "Значительная часть угрозы так и осталась неопределённой." : state.defender.fear > state.aggressor.resolve ? "В начале вы, вероятно, переоценивали его готовность идти до конца." : "Собранные сигналы довольно точно снизили туман.";
-  return `<strong>Что противник хотел:</strong> ${state.world.objective}.<br><strong>Что было скрыто:</strong> он ${resolve}, ${face}, ${institution}; ${allies}.<br><strong>Ваша оценка:</strong> ${perception}<br><strong>Его сильнейший ход:</strong> ${state.strongestAggressorMove?.text || "он не успел создать устойчивую контригру"}`;
+  const comparisons = [];
+  if (state.intel.resolve) {
+    const expectedHigh = /высок/.test(state.intel.resolve), actualHigh = state.world.resolve >= 7;
+    comparisons.push(expectedHigh === actualHigh ? `Вы верно заметили, что его решимость ${actualHigh ? "высока" : "не выглядит высокой"}.` : `Сигналы создавали впечатление ${expectedHigh ? "высокой" : "не самой высокой"} решимости, но фактически Resolve был ${state.world.resolve}.`);
+  }
+  if (state.intel.allies) {
+    const expectedNone = /никого/.test(state.intel.allies), actualNone = state.world.alliesNear === 0;
+    comparisons.push(expectedNone === actualNone ? `Наблюдение за окружением верно оценило наличие его союзников.` : `Оценка союзников оказалась неточной: на самом деле рядом было ${state.world.alliesNear}.`);
+  }
+  if (state.intel.bluff) comparisons.push((state.intel.bluff === "вероятен") === (state.world.bluff >= .68) ? "Вы правильно распознали характер угрозы и вероятность блефа." : "Характер угрозы был прочитан неточно.");
+  if (state.intel.face) comparisons.push((/высокая/.test(state.intel.face)) === (state.world.needForFace >= .65) ? "Вы правильно заметили его реакцию на публичность." : "Публичность влияла на него иначе, чем подсказывали сигналы.");
+  if (state.intel.institutionSensitivity) comparisons.push((state.intel.institutionSensitivity === "высокая") === (state.world.fearOfInstitution >= .65) ? "Вы правильно оценили его чувствительность к институциональным последствиям." : "Его чувствительность к институту была оценена неточно.");
+  if (!comparisons.length) comparisons.push("Вы собрали слишком мало сигналов, поэтому большая часть скрытого мира осталась предположением.");
+  const objectiveReason = state.world.objective === "control" ? "успешная уступка делала следующую проверку границы особенно ценной" : "после получения вещи ему обычно было выгоднее закончить сцену; продолжение требовало очень высокой склонности к эксплуатации";
+  return `<div class="reveal-block"><strong>Что можно было предположить</strong><ul>${comparisons.map(item => `<li>${item}</li>`).join("")}</ul></div><div class="reveal-block"><strong>Что было на самом деле</strong><p>Цель: ${objectiveLabel(state)} — ${objectiveReason}. Он ${resolve}, ${face}, ${institution}; ${allies}. Склонность к блефу: ${state.world.bluff >= .68 ? "высокая" : "ограниченная"}.</p></div><div class="reveal-block"><strong>Почему он действовал так</strong><p>${state.strongestAggressorMove?.text || "Он не успел создать устойчивую контригру"}</p></div>`;
 }
 function showResult() {
   $("gameView").classList.add("hidden"); $("resultView").classList.remove("hidden");
   const [name, text, seal] = OUTCOMES[state.outcome];
   $("resultTitle").textContent = name; $("resultSummary").textContent = "Здесь нет одного счёта победы. Итог разделяет безопасность сейчас и свободу в следующих столкновениях.";
   $("outcomeSeal").textContent = seal; $("outcomeName").textContent = name; $("outcomeText").textContent = text;
-  if (["safe-exit", "temporary-release"].includes(state.outcome)) $("outcomeText").textContent += ` Риск повторного давления сейчас: ${state.futureDemand < 4 ? "низкий" : state.futureDemand < 7 ? "средний" : "высокий"}.`;
+  if (["safe-exit", "temporary-release", "temporary-institutional"].includes(state.outcome)) $("outcomeText").textContent += ` Риск повторного давления: ${repeatRiskLabel(state)} (${repeatDrivers(state, true)}).`;
   const scores = { "Physical safety": state.physicalSafety, "Autonomy": state.autonomy, "Reputation": state.defender.reputation, "Long-term safety": state.longTermSafety, "Institutional control": state.defender.institution, "De-escalation": 10 - state.escalation, "Psychological reserve": 10 - state.psychologicalCost };
   $("scoreBars").innerHTML = Object.entries(scores).map(([k,v]) => `<div class="score-row"><span>${k}</span><div class="score-track"><i style="width:${clamp(v)*10}%"></i></div><strong>${clamp(v)}</strong></div>`).join("");
   const strategicExit = ["safe-exit", "face-saving", "deterrence", "institutional", "contained"].includes(state.outcome);
@@ -518,7 +577,7 @@ function tickSound() {
 }
 function openModel() {
   $("modelFormulaBox").innerHTML = [
-    `Pressure = Power × Credibility + Uncertainty × ${WEIGHTS.uncertainty} + positive Control × ${WEIGHTS.control} + (Threat Debt + Status Pressure) × ${WEIGHTS.debt} + Compliance Memory × 0.35 + Weapons × ${WEIGHTS.weapons}`,
+    `Pressure = Power × Credibility + Uncertainty × ${WEIGHTS.uncertainty} + positive Control × ${WEIGHTS.control} + (Threat Debt + Status Pressure) × ${WEIGHTS.debt} + Compliance Memory × objective weight + Weapons × ${WEIGHTS.weapons}`,
     `External Cost = Witnesses × Reliability × ${WEIGHTS.witnesses} + Evidence × ${WEIGHTS.evidence} + Immediate Allies × 1.2 + Allies × 0.3 + Coalition × 0.6 + Institution × Quality × ${WEIGHTS.institution} + Fearₐ × ${WEIGHTS.aggressorFear}`,
     `Net Incentive = Pressure + Future Benefit − External Cost × ${WEIGHTS.costIncentive}`
   ].map(x => `<code>${x}</code>`).join("");
@@ -531,4 +590,4 @@ $("soundButton").addEventListener("click", () => { soundEnabled = !soundEnabled;
 $("historyToggle").addEventListener("click", () => { const list = $("historyList"), open = list.classList.toggle("hidden") === false; $("historyToggle").setAttribute("aria-expanded", open); });
 $("modelDialog").addEventListener("click", e => { if (e.target === $("modelDialog")) $("modelDialog").close(); });
 
-window.ConflictSimulator = { SCENARIO, WEIGHTS, freshState, pressure, externalCost, futureBenefit, netIncentive, stressLoad, totalDebt };
+window.ConflictSimulator = { SCENARIO, WEIGHTS, freshState, pressure, externalCost, futureBenefit, netIncentive, stressLoad, totalDebt, repeatPressure, repeatRiskLabel, exitRoute };
