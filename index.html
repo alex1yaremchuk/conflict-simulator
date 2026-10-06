@@ -26,7 +26,7 @@
     <section class="intro" id="introView">
       <div class="eyebrow">СТРАТЕГИЧЕСКАЯ ПЕСОЧНИЦА · СЦЕНАРИЙ 01</div>
       <h1>Сила — это не только<br><em>способность ударить.</em></h1>
-      <p class="intro-copy">Превратите неопределённый страх в анализируемый конфликт. Сохраняйте автономию, меняйте игровое поле и не позволяйте одному решению стать системой контроля.</p>
+      <p class="intro-copy"><strong>Ваша задача — не победить Старшего в споре.</strong> Сохраните физическую безопасность и автономию и сделайте дальнейшее давление менее выгодным.</p>
 
       <div class="scenario-card">
         <div class="scenario-index">01</div>
@@ -54,11 +54,18 @@
         <button class="text-button restart-button" id="restartButton">Начать заново</button>
       </div>
 
+      <div class="objective-bar">
+        <span class="eyebrow">ДВА ГОРИЗОНТА</span>
+        <p><strong>Сейчас:</strong> не допустить опасного ущерба.</p>
+        <p><strong>Потом:</strong> не превратить уступку в постоянное правило.</p>
+        <div class="stress-state" id="stressState">Самообладание устойчиво</div>
+      </div>
+
       <div class="game-grid">
         <aside class="actor-card aggressor" id="aggressorCard">
           <div class="actor-title"><span class="actor-symbol">A</span><div><span class="eyebrow">COERCER</span><h2>Старший</h2></div></div>
           <div class="metric-list" id="aggressorMetrics"></div>
-          <div class="knowledge-card"><span>Ваше знание</span><strong id="knowledgeLabel">Низкое</strong><div class="mini-track"><i id="knowledgeFill"></i></div></div>
+          <div class="knowledge-card"><span>Оценка противника</span><strong id="knowledgeLabel">Туманная</strong><div class="mini-track"><i id="knowledgeFill"></i></div><ul class="signal-list" id="signalList"><li>Пока только первое впечатление.</li></ul></div>
         </aside>
 
         <section class="situation-panel">
@@ -76,6 +83,8 @@
 
           <div class="core-metrics" id="coreMetrics"></div>
 
+          <div class="resource-strip" id="resourceStrip"></div>
+
           <div class="event-card" id="eventCard">
             <span class="eyebrow">ПОСЛЕДНЕЕ СОБЫТИЕ</span>
             <p id="eventText">«Дай посмотреть блокнот. Я потом верну».</p>
@@ -92,6 +101,7 @@
           <div class="actor-title"><span class="actor-symbol">D</span><div><span class="eyebrow">DEFENDER · ВЫ</span><h2>Чик</h2></div></div>
           <div class="metric-list" id="defenderMetrics"></div>
           <div class="field-card" id="fieldCard"><span>Игровое поле</span><strong id="fieldLabel">Один на один</strong><p id="fieldDescription">Изоляция усиливает физическое преимущество агрессора.</p></div>
+          <div class="cost-card"><span>Цена продолжения для агрессора</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div><p id="debtLabel">Reputation Debt: нет</p></div>
         </aside>
       </div>
 
@@ -111,7 +121,7 @@
       <div class="result-grid">
         <div class="outcome-card"><span class="eyebrow">ИСХОД</span><div class="outcome-seal" id="outcomeSeal">A</div><h2 id="outcomeName"></h2><p id="outcomeText"></p></div>
         <div class="score-card"><span class="eyebrow">СЕМЬ ОСЕЙ РЕЗУЛЬТАТА</span><div id="scoreBars"></div></div>
-        <div class="lesson-card"><span class="eyebrow">РАЗБОР</span><h2 id="lessonTitle"></h2><p id="lessonText"></p><div class="turning-point" id="turningPoint"></div></div>
+        <div class="lesson-card"><span class="eyebrow">ПРИЧИННАЯ ЦЕПОЧКА</span><h2 id="lessonTitle"></h2><ol class="causal-chain" id="causalChain"></ol><div class="turning-point" id="turningPoint"></div><p class="alternative" id="alternativeText"></p></div>
       </div>
       <div class="result-actions"><button class="primary-button" id="playAgainButton">СЫГРАТЬ ЕЩЁ РАЗ <span>↻</span></button><button class="secondary-button" id="resultModelButton">Посмотреть модель</button></div>
     </section>
@@ -122,16 +132,16 @@
     <span class="eyebrow">КАК РАБОТАЕТ СИМУЛЯЦИЯ</span>
     <h2>Компактная модель состояния</h2>
     <p>Каждый ход сначала меняет ситуацию немедленно, затем оставляет стратегический след. ИИ оценивает, выгодно ли продолжать давление.</p>
-    <div class="formula-box"><code>Pressure = Power × Credibility × Uncertainty + Control</code><code>Cost = Witnesses + Evidence + Allies + Institution + Fearₐ</code><code>Continue, если Expected Benefit − Cost &gt; Exit Threshold</code></div>
+    <div class="formula-box" id="modelFormulaBox"></div>
     <h3>Пять ключевых переменных</h3>
     <dl class="model-list">
-      <div><dt>Fear</dt><dd>Усиливается опасностью и неизвестностью; ухудшает контроль при низком самообладании.</dd></div>
+      <div><dt>Fear</dt><dd>Усиливается опасностью и неизвестностью. Когда Fear выше Self-Control, оценка риска становится менее точной, а действия по сопротивлению ощущаются опаснее.</dd></div>
       <div><dt>Control</dt><dd>Кто задаёт темп. Время, варианты и третьи стороны возвращают инициативу защитнику.</dd></div>
       <div><dt>Reputation</dt><dd>Делает угрозу правдоподобной. Неисполненная публичная угроза создаёт долг репутации.</dd></div>
       <div><dt>Autonomy</dt><dd>Долгосрочная способность выбирать. Уступка может снизить риск сейчас, но уменьшить её.</dd></div>
       <div><dt>Escalation</dt><dd>Стадия конфликта, а не счёт урона. Чем она выше, тем дороже ошибки обеих сторон.</dd></div>
     </dl>
-    <p class="model-note">В Explain-режиме после каждого действия видны точные модификаторы и решение ИИ.</p>
+    <p class="model-note">Скрытое состояние мира выбирается в начале партии. Оно меняет качество свидетелей, реакцию взрослых и стратегию агрессора — но не бросает кубик после нажатия кнопки. В Explain-режиме видны реальные расчёты текущей партии.</p>
   </dialog>
 
   <script src="app.js"></script>

@@ -31,7 +31,9 @@ python -m http.server 4173
 - informational: `uncertainty`, `evidence`, `witnesses`;
 - psychological: `resolve`, `fear`, `selfControl`.
 
-Дополнительно симуляция хранит `danger`, `reputation debt`, `future demand`, `physical safety`, `long-term safety` и `psychological cost`. Часть ресурсов агрессора скрыта и раскрывается действиями игрока.
+Дополнительно симуляция хранит `danger`, `reputation debt`, `future demand`, `physical safety`, `long-term safety` и `psychological cost`. Скрытые характеристики не раскрываются как точные карточки: Observe выдаёт вероятностные сигналы, из которых игрок строит рабочую гипотезу.
+
+В начале партии целиком выбирается один скрытый профиль мира. Он задаёт решимость и страх агрессора, наличие его приятелей, надёжность свидетелей, вероятность обнаружения фиксации и качество институциональной реакции. После выбора профиля действия рассчитываются причинно и не перебрасывают «удачу кнопки».
 
 ## Turn loop
 
@@ -50,19 +52,25 @@ python -m http.server 4173
 ```text
 credibility = (aggressor.reputation + aggressor.resolve) / 20
 pressure = power × credibility
-         + uncertainty × 0.30
-         + max(control, 0) × 0.35
-         + reputationDebt × 0.40
+         + uncertainty × 0.28
+         + max(control, 0) × 0.32
+         + reputationDebt × 0.48
+         + weapons × 0.50
 ```
 
 Цена продолжения:
 
 ```text
-externalCost = witnesses × 1.20
+externalCost = witnesses × witnessReliability × 1.20
              + evidence × 1.40
-             + defender.allies × 0.50
-             + defender.institution × 1.40
-             + aggressor.fear
+             + defender.allies × 0.55
+             + defender.institution × institutionQuality × 1.60
+             + aggressor.fear × 0.60
+
+futureBenefit = futureDemand × 0.45
+              + lostAutonomy × 0.25
+
+netIncentive = pressure + futureBenefit − externalCost × 0.62
 ```
 
 Решение ИИ:
@@ -72,7 +80,9 @@ externalCost = witnesses × 1.20
 - при высокой цене и малом долге — отступление;
 - Face-Saving Exit работает, если есть долг репутации и внешняя цена уже достаточно высока.
 
-Fear не уменьшается отдельной кнопкой. Его основные противовесы — информация, свидетели, союзники и рабочий маршрут выхода. Уступка снижает Fear и Danger немедленно, но уменьшает Autonomy и повышает вероятность следующего требования.
+Fear не уменьшается отдельной кнопкой. Его основные противовесы — информация, свидетели, союзники и рабочий маршрут выхода. Когда `Fear − Self-Control ≥ 2`, интерфейс показывает искажённую оценку риска, а точные действия сопротивления дают агрессору небольшой прирост Control и увеличивают психологическую цену. Управление у игрока не отбирается. Уступка снижает Fear и Danger немедленно, но уменьшает Autonomy и повышает вероятность следующего требования.
+
+Агрессор выбирает активную контригру из доступных ему ресурсов: блефует при высокой неопределённости, уводит сцену от свидетелей, привлекает приятеля, дискредитирует свидетельскую картину, усиливает угрозу либо ищет выход при высоком External Cost и Reputation Debt.
 
 ## Декларативные сценарии
 
