@@ -132,12 +132,6 @@ h1, h2, h3, p { margin-top: 0; }
 .resource-item span { display: block; color: var(--muted); font-size: 7px; text-transform: uppercase; letter-spacing: .06em; }
 .resource-item strong { display: block; margin-top: 3px; font-size: 12px; }
 .resource-item.debt strong { color: var(--red); }
-.event-card { min-height: 118px; padding: 18px 20px; background: #e9e5da; border-left: 3px solid var(--ink); }
-.event-card p { margin: 8px 0 12px; font-family: Prata, serif; font-size: 16px; line-height: 1.45; }
-.effect-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.effect-chip { padding: 4px 7px; background: rgba(255,255,255,.58); color: var(--muted); font-size: 9px; }
-.effect-chip.good { color: var(--green); }
-.effect-chip.bad { color: var(--red); }
 .debug-panel { margin-top: 14px; border: 1px solid #222; background: #202321; color: #cfd7cf; }
 .debug-head { display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 1px solid #3b403c; color: #8da98f; font: 9px/1.4 ui-monospace, monospace; }
 .debug-panel pre { margin: 0; padding: 12px; white-space: pre-wrap; color: #c7cbc5; font: 10px/1.6 ui-monospace, monospace; }
@@ -273,4 +267,107 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
   .lesson-card { grid-column: auto; }
   .result-actions { flex-direction: column; }
   dialog { padding: 28px 20px; }
+}
+
+/* Desktop cockpit: the complete decision map stays inside one viewport. */
+@media (min-width: 981px) and (min-height: 700px) {
+  .topbar { min-height: 54px; height: 54px; }
+  .game {
+    height: calc(100dvh - 54px);
+    padding: 7px 0;
+    display: grid;
+    grid-template-rows: 24px 30px minmax(208px, .72fr) minmax(320px, 1.28fr) 26px;
+    gap: 5px;
+    overflow: hidden;
+  }
+  .round-line { min-height: 0; margin: 0; }
+  .stage-name { padding: 3px 7px; }
+  .objective-bar { min-height: 0; gap: 14px; margin: 0; padding: 4px 11px; }
+  .objective-bar p { font-size: 10px; white-space: nowrap; }
+  .stress-state { padding: 4px 7px; font-size: 8.5px; white-space: nowrap; }
+
+  .game-grid { min-height: 0; overflow: hidden; box-shadow: 0 8px 24px rgba(37,37,28,.07); }
+  .actor-card { min-height: 0; padding: 9px 11px; overflow: hidden; }
+  .actor-title { gap: 8px; padding-bottom: 6px; }
+  .actor-title h2 { font-size: 17px; }
+  .actor-symbol { width: 29px; height: 29px; font-size: 13px; }
+  .actor-title .eyebrow { font-size: 8px; }
+  .metric-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 10px; padding: 7px 0; }
+  .metric-row { gap: 3px 6px; }
+  .metric-row label { overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+  .metric-row strong { font-size: 10px; }
+  .metric-row.unknown strong { font-size: 12px; }
+  .metric-bar { height: 2px; }
+  .knowledge-card, .field-card, .cost-card { padding: 7px 9px; }
+  .knowledge-card > span, .field-card > span, .cost-card > span { font-size: 7.5px; }
+  .knowledge-card strong, .field-card strong { margin-top: 2px; font-size: 12px; }
+  .mini-track { margin-top: 5px; }
+  .signal-list { max-height: 31px; gap: 0; margin-top: 5px; padding: 4px 0 0 13px; overflow: hidden; font-size: 8.5px; line-height: 1.3; }
+  .field-card p, .cost-card p { display: -webkit-box; margin-top: 3px; overflow: hidden; font-size: 8px; line-height: 1.25; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .cost-card { margin-top: 5px; }
+  .cost-card strong { margin-top: 2px; font-size: 13px; }
+
+  .situation-panel { min-height: 0; padding: 9px 14px; overflow: hidden; }
+  .situation-top { gap: 8px; }
+  .situation-top h2 { margin-top: 1px; font-size: 19px; }
+  .pulse-dot { width: 7px; height: 7px; box-shadow: 0 0 0 5px rgba(166,66,52,.1); }
+  .situation-text { min-height: 0; margin: 4px 0 6px; overflow: hidden; font-size: 10px; line-height: 1.35; text-overflow: ellipsis; white-space: nowrap; }
+  .demand-card { min-height: 0; margin-bottom: 5px; padding: 5px 8px; }
+  .demand-card .eyebrow { font-size: 7.5px; }
+  .demand-card strong { display: inline; margin-top: 0; font-size: 13px; }
+  .demand-card small { display: inline; margin: 0 0 0 8px; font-size: 8px; }
+  .control-block { padding: 5px 0 6px; }
+  .control-track { height: 4px; margin-top: 5px; }
+  .control-track i { width: 11px; height: 11px; border-width: 2px; }
+  .control-center { top: -3px; height: 10px; }
+  .control-value { margin-top: 3px; font-size: 7px; }
+  .core-metrics { margin: 5px 0 4px; }
+  .core-metric { padding: 4px 8px; }
+  .core-metric span { font-size: 7px; }
+  .core-metric strong { display: inline; margin: 0 0 0 5px; font-size: 15px; }
+  .resource-strip { margin-bottom: 0; }
+  .horizon-title { padding: 2px 5px; font-size: 6px; }
+  .resource-item { padding: 3px 4px; }
+  .resource-item span { font-size: 6px; }
+  .resource-item strong { display: inline; margin: 0 0 0 3px; font-size: 9px; }
+  .debug-panel { position: fixed; z-index: 30; right: 18px; bottom: 18px; width: min(620px, calc(100vw - 36px)); max-height: 45vh; margin: 0; overflow: auto; box-shadow: 0 15px 50px rgba(0,0,0,.3); }
+
+  .decision-panel { min-height: 0; margin: 0; padding: 6px 9px 7px; display: grid; grid-template-columns: minmax(230px, .72fr) minmax(0, 1.8fr); grid-template-rows: 35px minmax(0, 1fr); gap: 4px 10px; overflow: visible; box-shadow: 0 8px 24px rgba(37,37,28,.07); }
+  .decision-heading { min-width: 0; align-items: center; margin: 0; }
+  .decision-heading h2 { margin-top: 1px; font-size: 16px; white-space: nowrap; }
+  .decision-heading p { display: none; }
+  .stake-anchor { min-width: 0; gap: 8px; margin: 0; padding: 5px 9px; overflow: hidden; }
+  .stake-anchor > span { font-size: 7.5px; white-space: nowrap; }
+  .stake-anchor strong { font-size: 10px; white-space: nowrap; }
+  .stake-anchor p { overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+  .action-grid { grid-column: 1 / -1; min-height: 0; }
+  .action-grid.spectrum { gap: 5px; overflow: visible; }
+  .response-column { min-height: 0; padding: 4px; }
+  .response-column-heading { min-height: 24px; grid-template-columns: 25px 1fr; gap: 3px; margin-bottom: 3px; padding-bottom: 3px; }
+  .response-column-heading b { font-size: 15px; }
+  .response-column-heading span { font-size: 7.5px; line-height: 1.15; }
+  .field-actions { gap: 3px; }
+  .field-divider { margin: 2px 1px 0; padding-top: 3px; font-size: 7px; }
+  .action-button { padding: 7px 8px; }
+  .action-button .action-icon { margin-bottom: 3px; font-size: 12px; }
+  .action-button .risk { top: 5px; right: 5px; font-size: 7.5px; }
+  .action-button strong { padding-right: 48px; overflow: hidden; font-size: 9px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+  .action-button small { display: block; margin-top: 2px; overflow: hidden; font-size: 8px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+  .action-button.direct-response { min-height: clamp(73px, 9dvh, 90px); border-top-width: 2px; }
+  .action-button.direct-response strong { padding-right: 44px; font-size: 11px; line-height: 1.2; }
+  .action-button.field-action { min-height: clamp(45px, 5.8dvh, 56px); background: #e8ece6; }
+  .action-button.field-action .action-icon { display: none; }
+  .placement-note { margin-top: 3px; overflow: hidden; font-size: 7.5px; line-height: 1.15; text-overflow: ellipsis; white-space: nowrap; }
+  .action-profile { display: none; position: absolute; z-index: 20; left: 4px; right: 4px; bottom: calc(100% - 3px); padding: 5px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+  .action-button:hover .action-profile, .action-button:focus-visible .action-profile { display: flex; }
+  .action-button .fear-note { display: none; }
+  .context-intro { padding: 5px 8px; font-size: 8px; }
+  .decision-panel.context-mode { grid-template-columns: 1fr; }
+  .decision-panel.context-mode .decision-heading { display: none; }
+  .decision-panel.context-mode .action-grid { grid-row: 1 / -1; grid-template-columns: repeat(4, 1fr); }
+  .decision-panel.context-mode .action-button { min-height: 90px; }
+
+  .history-panel { min-height: 0; margin: 0; overflow: visible; }
+  .history-toggle { height: 25px; padding: 4px 10px; font-size: 7px; }
+  .history-list { position: absolute; z-index: 25; right: max(20px, calc((100vw - 1380px) / 2)); bottom: 35px; width: min(650px, calc(100vw - 40px)); max-height: 45vh; overflow: auto; padding: 8px 22px 12px 38px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
 }

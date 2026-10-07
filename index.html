@@ -90,12 +90,6 @@
 
           <div class="resource-strip" id="resourceStrip"></div>
 
-          <div class="event-card" id="eventCard">
-            <span class="eyebrow">ПОСЛЕДНЕЕ СОБЫТИЕ</span>
-            <p id="eventText">«Дай посмотреть блокнот. Я потом верну».</p>
-            <div id="effectChips" class="effect-chips"></div>
-          </div>
-
           <div class="debug-panel hidden" id="debugPanel">
             <div class="debug-head"><span>EXPLAIN / DEBUG</span><span id="debugFormula">—</span></div>
             <pre id="debugText">Выберите действие, чтобы увидеть расчёт.</pre>
@@ -111,8 +105,8 @@
       </div>
 
       <section class="decision-panel" id="decisionPanel">
-        <div class="decision-heading"><div><span class="eyebrow">ВАШ ХОД</span><h2>Насколько сильно ответить?</h2></div><p>Пять колонок показывают силу ответа относительно последнего хода. Риск указан отдельно: сильнее не всегда опаснее.</p></div>
-        <div class="stake-anchor" id="stakeAnchor"><span>ПОСЛЕДНИЙ ШАГ АГРЕССОРА</span><strong id="stakeLabel">Слабое требование</strong><p id="stakeText">«Дай посмотреть блокнот. Я потом верну»</p></div>
+        <div class="decision-heading"><div><span class="eyebrow">ВАШ ХОД</span><h2>Насколько сильно ответить?</h2></div><p>Сила относительно текущей ставки конфликта. Риск — отдельная оценка, а не вторая шкала силы.</p></div>
+        <div class="stake-anchor" id="stakeAnchor"><span>ТЕКУЩАЯ СТАВКА</span><strong id="stakeLabel">Слабое требование</strong><p id="stakeText">«Дай посмотреть блокнот. Я потом верну»</p></div>
         <div class="action-grid" id="actionGrid"></div>
       </section>
 

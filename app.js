@@ -9,7 +9,7 @@ const SCENARIO = {
     { id: "defer", kind: "direct", responseLevel: -1, icon: "≈", name: "«Потом покажу»", hint: "Не согласиться сейчас, но не делать вызов", risk: 1, challenge: .25, profile: ["+ Время", "− Темп", "граница остаётся неясной"] },
     { id: "reciprocal", kind: "direct", responseLevel: 0, icon: "⇄", name: "«Тогда сначала дай свой»", hint: "Ответить условием равной силы", risk: 2, challenge: 1, assertive: true, profile: ["+ Autonomy", "равная ставка", "может задеть статус"] },
     { id: "boundary", kind: "direct", responseLevel: 1, icon: "□", name: "«Отстань, иначе позову взрослого»", hint: "Отказать и назвать последствие", risk: 2, challenge: 1.5, assertive: true, profile: ["+ Autonomy", "+ Reputation при опоре", "риск проверки"] },
-    { id: "strongCounter", kind: "direct", responseLevel: 2, icon: "!", name: "Повторить требование вслух", hint: "Зафиксировать его и сразу идти к взрослому", risk: 2, challenge: 2, assertive: true, profile: ["+ External Cost", "+ Evidence", "короткий риск публичности"] },
+    { id: "strongCounter", kind: "direct", responseLevel: 2, icon: "!", name: "Сделать требование публичным", hint: "Повторить его вслух и зафиксировать", risk: 2, challenge: 2, assertive: true, profile: ["+ External Cost", "+ Evidence", "короткий риск публичности"] },
     { id: "observe", kind: "field", baseLevel: -1, icon: "◇", name: "Наблюдать", hint: "Получить сигнал о скрытом состоянии", risk: 1, challenge: 0, profile: ["− Uncertainty", "− Fear", "+ время агрессору"] },
     { id: "delay", kind: "field", baseLevel: -1, icon: "◷", name: "Тянуть время", hint: "Дождаться движения в коридоре", risk: 2, challenge: .15, profile: ["+ Время", "+ Witnesses", "− Control"] },
     { id: "leave", kind: "field", baseLevel: 0, icon: "↗", name: "Уйти", hint: "Попытаться физически выйти из сцены", risk: 2, challenge: .6, assertive: true, profile: ["− Danger", "+ Safety", "важна опора рядом"] },
@@ -343,7 +343,8 @@ function setAggressorMove(s, strength, label, text) {
 
 function aggressorResponse(s, playerAction = null) {
   if (s.outcome) return result("Текущая сцена завершена.", [], formulaLine(s), "", 0);
-  const cost = externalCost(s), net = netIncentive(s);
+  const cost = externalCost(s), hiddenActionRisk = playerAction ? actualRiskValue(playerAction, s) : 0;
+  const net = +(netIncentive(s) + Math.max(0, hiddenActionRisk - 2.5) * .25).toFixed(1);
   if (s.currentDemand.status === "complied" && !s.complianceProcessed) {
     s.complianceProcessed = true;
     const objectiveBias = s.world.objective === "control" ? .24 : -.22;
@@ -370,6 +371,29 @@ function aggressorResponse(s, playerAction = null) {
     apply(s, { danger: -1, control: -1, "aggressor.fear": 1 });
     setAggressorMove(s, 2, "Повтор угрозы", "Он повторяет условие, но не усиливает его");
     return result("Он повторяет условие, но не усиливает его. Высокая цена мешает эскалации, а угроза — простому отступлению.", ["Aggressor Fear +1", "Danger −1", "Доступен Face-Saving Exit"], `${formulaLine(s)} Cost высокий, totalDebt=${totalDebt(s)}: поиск выхода.`, "Долг угрозы и публичная ставка заперли агрессора между дорогой эскалацией и потерей лица.", 2);
+  }
+  if (playerAction?.id === "defer" && s.currentThreat?.status !== "active") {
+    const willingness = s.world.resolve * .38 + s.world.exploitation * 3 + Math.max(0, s.control) * .22 + (s.world.objective === "control" ? 1.2 : 0);
+    if (s.world.objective === "material" && s.world.exploitation < .48) {
+      apply(s, { control: -1, danger: -1, "aggressor.fear": 1 });
+      setAggressorMove(s, 0, "Согласие подождать", "«Ладно, потом»");
+      return result("Он пожимает плечами: «Ладно, потом». Мягкая отсрочка сработала сейчас, хотя требование не исчезло навсегда.", ["Control −1", "Danger −1", "Пауза в давлении"], `${formulaLine(s)} Defer: material objective и exploitation ${s.world.exploitation.toFixed(2)} < .48.`, "Материальная цель не стоила немедленной эскалации.", 2);
+    }
+    if (s.aggressor.resolve <= 5 && willingness < 4.8) {
+      apply(s, { control: 1, "defender.fear": 1 });
+      setAggressorMove(s, 1, "Повтор просьбы", "«Сейчас покажи, я быстро»");
+      return result("Он повторяет просьбу: «Сейчас покажи, я быстро», — пытаясь сохранить будничный тон без угрозы.", ["Control +1", "Fear +1", "Требование повторено"], `${formulaLine(s)} Defer willingness ${willingness.toFixed(1)} < 4.8 при Resolve ${s.aggressor.resolve}.`, "Агрессор попробовал дожать прежним способом вместо повышения ставки.", 1);
+    }
+    if (s.world.needForFace >= .72 && s.aggressor.resolve < 7) {
+      apply(s, { statusPressure: 1, "defender.fear": 1 });
+      setAggressorMove(s, 1, "Насмешка", "Он высмеивает попытку отложить ответ");
+      return result("Он усмехается над попыткой отложить ответ, но прямой угрозы не произносит.", ["Status Pressure +1", "Fear +1", "Насмешка"], `${formulaLine(s)} Need for Face ${s.world.needForFace.toFixed(2)}: мягкое уклонение вызвало статусную реакцию без Threat Debt.`, "Он защищает статус насмешкой, не связывая себя угрозой.", 1);
+    }
+    if (willingness < 6.1) {
+      apply(s, { control: 1, uncertainty: 1 });
+      setAggressorMove(s, 1, "Давление без угрозы", "Он остаётся рядом и требует ответить сейчас");
+      return result("Он остаётся рядом и требует ответить сейчас, но пока не формулирует последствие.", ["Control +1", "Uncertainty +1", "Давление без угрозы"], `${formulaLine(s)} Defer willingness ${willingness.toFixed(1)} < 6.1.`, "Мягкое уклонение пригласило дальнейшее давление, но не гарантировало угрозу.", 1);
+    }
   }
   if (s.currentDemand.status === "refused" && totalDebt(s) === 0) {
     const challenge = playerAction?.challenge || 0;
@@ -498,15 +522,30 @@ function responseLevelFor(action, s = state) {
   if (severe && ["witnesses", "document", "appeal", "coalition", "leave"].includes(action.id)) level -= 1;
   return clamp(Math.round(level), -2, 2);
 }
-function riskScore(action, s = state) {
+function actualRiskValue(action, s = state) {
   const challenge = action.challenge || 0;
-  const faceSensitivity = s.world.needForFace >= .7 ? .7 : .25;
-  const powerGap = Math.max(0, s.aggressor.power - s.defender.resolve) * .14;
-  const exposure = Math.max(0, s.control) * .08 + powerGap;
-  const protection = s.witnesses * .12 + s.immediateAllies * .3 + externalCost(s) * .025;
-  const publicityBacklash = challenge > .5 && s.witnesses > 0 && s.world.needForFace >= .7 ? .45 : 0;
-  const stress = action.assertive ? stressLoad(s) * .18 : 0;
-  return clamp(Math.round(action.risk + challenge * faceSensitivity + exposure + publicityBacklash + stress - protection), 1, 3);
+  const faceSensitivity = .2 + s.world.needForFace * .35;
+  const powerGap = Math.max(0, s.aggressor.power - s.defender.resolve) * .08;
+  const exposure = Math.max(0, s.control) * .045 + powerGap;
+  const protection = s.witnesses * s.world.witnessReliability * .1 + s.immediateAllies * .22 + externalCost(s) * .012;
+  const publicityBacklash = challenge > .5 && s.witnesses > 0 ? s.world.needForFace * .3 : 0;
+  const stress = action.assertive ? stressLoad(s) * .1 : 0;
+  return +(action.risk + challenge * faceSensitivity + exposure + publicityBacklash + stress - protection).toFixed(2);
+}
+function perceivedRiskValue(action, s = state) {
+  const challenge = action.challenge || 0;
+  const faceEstimate = s.intel.face === null ? .5 : /высок/.test(s.intel.face) ? .82 : .38;
+  const resolveEstimate = s.intel.resolve === null ? 5.5 : /высок/.test(s.intel.resolve) ? 8 : /низк|огранич/.test(s.intel.resolve) ? 4 : 5.5;
+  const powerGap = Math.max(0, s.aggressor.power - s.defender.resolve) * .08;
+  const exposure = Math.max(0, s.control) * .045 + powerGap + s.uncertainty * .025 + Math.max(0, resolveEstimate - 5.5) * .04;
+  const visibleProtection = s.witnesses * .08 + s.immediateAllies * .22 + s.evidence * .04 + s.defender.institution * .12;
+  const publicityBacklash = challenge > .5 && s.witnesses > 0 ? faceEstimate * .3 : 0;
+  const stress = action.assertive ? stressLoad(s) * .1 : 0;
+  return +(action.risk + challenge * (.2 + faceEstimate * .35) + exposure + publicityBacklash + stress - visibleProtection).toFixed(2);
+}
+function riskScore(action, s = state) {
+  const value = perceivedRiskValue(action, s);
+  return value < 1.75 ? 1 : value < 3 ? 2 : 3;
 }
 function riskLabel(action) {
   const labels = ["", "низкий", "средний", "высокий"];
@@ -519,7 +558,7 @@ function directCopy(action, s = state) {
     "-1": ["«Давай закончим без последствий»", "Смягчить сцену, не споря о статусе"],
     "0": ["«Это угроза. Я не согласен»", "Назвать происходящее без усиления ставки"],
     "1": ["«Отстань. Я зову взрослого»", "Отказать и назвать ближайшее последствие"],
-    "2": ["Зафиксировать угрозу и идти к взрослому", "Соединить доказательство с последствиями"]
+    "2": ["Сделать угрозу публичной", "Повторить её вслух и зафиксировать"]
   };
   const [name, hint] = threatCopy[String(action.responseLevel)];
   return { name, hint };
@@ -539,7 +578,7 @@ function renderMetric(container, label, value, known = true) {
 
 function render() {
   $("roundLabel").textContent = `ХОД ${Math.min(state.turn, SCENARIO.maxTurns)} / ${SCENARIO.maxTurns}`; $("stageName").textContent = SCENARIO.stages[state.stage];
-  $("situationTitle").textContent = state.situationTitle; $("situationText").textContent = state.situationText; $("eventText").textContent = state.event;
+  $("situationTitle").textContent = state.situationTitle; $("situationText").textContent = state.situationText;
   $("controlMarker").style.left = `${(state.control + 10) * 5}%`;
   $("controlValue").textContent = state.control === 0 ? "равновесие" : `${signed(Math.abs(state.control))} ${state.control > 0 ? "агрессору" : "защитнику"}`;
   const demandStatuses = { active: "АКТИВНО", complied: "ВЫПОЛНЕНО", refused: "ОТКАЗ", resolved_by_force: "РЕШЕНО СИЛОЙ" };
@@ -577,7 +616,6 @@ function render() {
   const nextResources = [["Evidence", state.evidence], ["Coalition", state.coalition], ["Institution", state.defender.institution], ["Repeat Risk", repeatRisk]];
   const group = (title, items) => `<div class="horizon-group"><div class="horizon-title">${title}</div>${items.map(([k,v]) => `<div class="resource-item ${/Debt|Risk/.test(k) ? "debt" : ""}"><span>${k}</span><strong>${v}</strong></div>`).join("")}</div>`;
   $("resourceStrip").innerHTML = group("NOW · текущая сцена", nowResources) + group("NEXT ENCOUNTER · стратегический слой", nextResources);
-  $("effectChips").innerHTML = state.effects.map(e => `<span class="effect-chip ${/−|отступает|exit|снижен|сохраняется/i.test(e) ? "good" : /\+|растёт|penalty/i.test(e) ? "bad" : ""}">${e}</span>`).join("");
   $("debugPanel").classList.toggle("hidden", !debugEnabled);
   $("debugText").textContent = state.debug || `Начальное состояние рассчитано функциями движка.\n${formulaLine(state)}\nStress load = max(0, Fear ${state.defender.fear} − Self-Control ${state.defender.selfControl} − Resolve ${state.defender.resolve}×0.2) = ${stressLoad(state)}.\nWorld seed: ${state.seed}.`;
   $("debugFormula").textContent = `P=${pressure(state)} · C=${externalCost(state)} · NET=${netIncentive(state)} · TD=${state.threatDebt} · SP=${state.statusPressure}`;
@@ -598,6 +636,7 @@ function render() {
     const profile = action.profile.map(x => `<em class="${/^\+|^− Danger|^− Fear|^− Control|^− Escalation/.test(x) ? "up" : /^− Autonomy|^\+ Danger|^\+ Escalation|^\+ Debt|^\+ Future/.test(x) ? "down" : ""}">${x}</em>`).join("");
     const exhausted = action.id === "inspectIsolation" && context?.inspected ? "<span class=\"fear-note\">Информация уже получена — выберите решение</span>" : "";
     const position = level === null ? "" : `<span class="placement-note">${placementNote(action, level)}</span>`;
+    btn.title = "Риск оценён только по известным вам сигналам";
     btn.innerHTML = `<span class="action-icon">${action.icon}</span><span class="risk risk-${riskScore(action)}">риск: ${riskLabel(action)}</span><strong>${copy.name}</strong><small>${copy.hint}</small>${position}<span class="action-profile">${profile}</span>${distorted ? "<span class=\"fear-note\">Страх делает риск субъективно выше</span>" : ""}${exhausted}`;
     btn.addEventListener("click", () => context ? takeContextAction(action.id) : takeAction(action.id));
     return btn;
@@ -702,4 +741,4 @@ $("soundButton").addEventListener("click", () => { soundEnabled = !soundEnabled;
 $("historyToggle").addEventListener("click", () => { const list = $("historyList"), open = list.classList.toggle("hidden") === false; $("historyToggle").setAttribute("aria-expanded", open); });
 $("modelDialog").addEventListener("click", e => { if (e.target === $("modelDialog")) $("modelDialog").close(); });
 
-window.ConflictSimulator = { SCENARIO, RESPONSE_LEVELS, WEIGHTS, freshState, pressure, externalCost, futureBenefit, netIncentive, stressLoad, totalDebt, repeatPressure, repeatRiskLabel, exitRoute, responseLevelFor, riskScore };
+window.ConflictSimulator = { SCENARIO, RESPONSE_LEVELS, WEIGHTS, ACTION_RULES, freshState, pressure, externalCost, futureBenefit, netIncentive, aggressorResponse, stressLoad, totalDebt, repeatPressure, repeatRiskLabel, exitRoute, responseLevelFor, actualRiskValue, perceivedRiskValue, riskScore };
