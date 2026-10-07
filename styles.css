@@ -471,7 +471,9 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
 .strength-choice.active em { color: #d7d9d6; }
 .strength-choice em.risk-3 { color: #bd4d3e; }
 .strength-choice.active em.risk-3 { color: #ffaea1; }
-.strength-choice .field-map { display: block; margin-top: 8px; padding-top: 7px; overflow: hidden; border-top: 1px solid rgba(108,113,108,.24); color: var(--blue); font-size: 12px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.strength-choice .field-map { display: flex; align-items: center; gap: 5px; min-height: 25px; margin-top: 8px; padding-top: 7px; overflow: hidden; border-top: 1px solid rgba(108,113,108,.24); color: var(--blue); font-size: 12px; line-height: 1.3; white-space: nowrap; }
+.strength-choice .field-map span { display: inline; min-height: 0; margin: 0 3px 0 0; color: inherit; font-size: 10px; letter-spacing: .06em; }
+.strength-choice .field-map i { display: inline-grid; place-items: center; width: 22px; height: 22px; border: 1px solid currentColor; border-radius: 50%; font-size: 12px; font-style: normal; }
 .strength-choice.active .field-map { border-top-color: rgba(255,255,255,.18); color: #b8d2d6; }
 .selected-action-pane { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; margin-top: 14px; }
 .selection-prompt { min-height: 122px; display: grid; place-content: center; gap: 6px; margin-top: 14px; border: 1px dashed #bcb6a9; color: var(--muted); text-align: center; }
@@ -636,7 +638,8 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
   .strength-choice span { display: inline; font-size: 11px; }
   .strength-choice strong { margin-top: 4px; font-size: 14px; }
   .strength-choice em { margin-top: 2px; font-size: 11px; }
-  .strength-choice .field-map { margin-top: 4px; padding-top: 4px; font-size: 10px; }
+  .strength-choice .field-map { min-height: 20px; margin-top: 4px; padding-top: 4px; font-size: 10px; }
+  .strength-choice .field-map i { width: 18px; height: 18px; font-size: 10px; }
   .selection-prompt { min-height: 92px; margin-top: 6px; }
   .selected-action-pane { margin-top: 6px; }
   .choice-section-label { min-height: 20px; margin-bottom: 3px; }

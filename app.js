@@ -664,7 +664,7 @@ function render() {
   $("debtLabel").textContent = debt === 0 ? "Связанных ставок нет" : `Debt ${debt} · угроза ${state.threatDebt} / публичная ставка ${state.statusPressure}`;
   const repeatRisk = repeatRiskLabel(state);
   $("repeatRiskLabel").textContent = `Риск повторного давления: ${repeatRisk} · ${repeatDrivers(state)}`;
-  $("stateSnapshot").textContent = `Поле: ${fieldNames[clamp(state.field, 0, 3)].toLowerCase()} · Цена давления: ${(cost < 6 ? "низкая" : cost < 10 ? "средняя" : "высокая").toLowerCase()} · Свидетели: ${state.witnesses} · Повтор: ${repeatRisk}`;
+  $("stateSnapshot").textContent = `Danger: ${state.danger} · Поле: ${fieldNames[clamp(state.field, 0, 3)].toLowerCase()} · Цена давления: ${(cost < 6 ? "низкая" : cost < 10 ? "средняя" : "высокая").toLowerCase()} · Свидетели: ${state.witnesses} · Повтор: ${repeatRisk}`;
   $("coreMetrics").innerHTML = [["Danger", state.danger], ["Fear", state.defender.fear], ["Autonomy", state.autonomy]].map(([k,v]) => `<div class="core-metric"><span>${k}</span><strong>${v}</strong></div>`).join("");
   const visibleResources = [["Witnesses", state.witnesses], ["Immediate Ally", state.immediateAllies], ["Evidence", state.evidence], ["Repeat Risk", repeatRisk]];
   $("resourceStrip").innerHTML = visibleResources.map(([k,v]) => `<div class="resource-item ${/Risk/.test(k) ? "debt" : ""}"><span>${k}</span><strong>${v}</strong></div>`).join("");
@@ -700,12 +700,13 @@ function render() {
     selector.className = "strength-selector"; pane.className = "selected-action-pane";
     RESPONSE_LEVELS.forEach(level => {
       const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === level.value);
-      const mapped = SCENARIO.actions.filter(action => action.kind === "field" && responseLevelFor(action) === level.value);
+      const mapped = SCENARIO.actions.filter(action => action.kind === "field" && responseLevelFor(action) === level.value && available(action));
       const copy = directCopy(direct), tab = document.createElement("button");
       tab.className = `strength-choice${selectedResponseLevel === level.value ? " active" : ""}`;
       tab.type = "button"; tab.setAttribute("aria-pressed", selectedResponseLevel === level.value);
-      const mapText = mapped.length ? mapped.slice(0, 2).map(action => `${action.icon} ${fieldCopy(action).name}`).join(" · ") + (mapped.length > 2 ? ` · +${mapped.length - 2}` : "") : "— нет действий поля";
-      tab.innerHTML = `<b>${level.mark}</b><span>${level.label}</span><strong>${copy.name}</strong><em class="risk-${riskScore(direct)}">риск: ${riskLabel(direct)}</em><small class="field-map">${mapText}</small>`;
+      const mapLabel = mapped.length ? mapped.map(action => fieldCopy(action).name).join(", ") : "нет доступных действий поля";
+      const mapIcons = mapped.length ? mapped.map(action => `<i title="${fieldCopy(action).name}">${action.icon}</i>`).join("") : "<i>—</i>";
+      tab.innerHTML = `<b>${level.mark}</b><span>${level.label}</span><strong>${copy.name}</strong><em class="risk-${riskScore(direct)}">риск: ${riskLabel(direct)}</em><small class="field-map" aria-label="Доступные действия поля: ${mapLabel}"><span>поле</span>${mapIcons}</small>`;
       tab.addEventListener("click", () => { selectedResponseLevel = level.value; render(); });
       selector.appendChild(tab);
     });
