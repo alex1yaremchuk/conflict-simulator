@@ -34,7 +34,7 @@ const WEIGHTS = Object.freeze({ uncertainty: .28, control: .32, debt: .48, weapo
 const $ = id => document.getElementById(id);
 const clamp = (n, min = 0, max = 10) => Math.max(min, Math.min(max, n));
 const signed = n => `${n > 0 ? "+" : ""}${n}`;
-let state, debugEnabled = false, soundEnabled = true, selectedResponseLevel = 0;
+let state, debugEnabled = false, soundEnabled = true, selectedResponseLevel = null;
 
 function randomSeed() {
   if (window.crypto?.getRandomValues) return window.crypto.getRandomValues(new Uint32Array(1))[0];
@@ -353,19 +353,25 @@ function resolveContext(s, id) {
   if (type === "afterScene") {
     s.pendingDecision = null;
     if (id === "preserveEvidence") apply(s, { evidence: 2, longTermSafety: 1, futureDemand: -1 });
-    if (id === "buildCoalitionAfter") apply(s, { coalition: 2, "defender.allies": 1, longTermSafety: 2, futureDemand: -1 });
+    let coalitionFoundation = 0, coalitionStrong = false, appealStrength = 0, appealWorked = false;
+    if (id === "buildCoalitionAfter") {
+      coalitionFoundation = +(s.witnesses * s.world.witnessReliability + s.immediateAllies * 1.7 + s.defender.allies * .25 + s.defender.reputation * .2 + s.coalition * .5).toFixed(1);
+      coalitionStrong = coalitionFoundation >= 2.4;
+      apply(s, { coalition: coalitionStrong ? 2 : 1, "defender.allies": coalitionStrong ? 1 : 0, longTermSafety: coalitionStrong ? 2 : 1, futureDemand: coalitionStrong ? -1 : 0 });
+    }
     if (id === "appealAfter") {
-      const worked = s.world.institutionQuality >= .62 || s.evidence >= 2;
-      apply(s, { "defender.institution": worked ? 2 : 1, longTermSafety: worked ? 2 : 1, futureDemand: worked ? -1 : 0 });
+      appealStrength = +(s.world.institutionQuality * 3 + s.evidence * .7 + s.witnesses * s.world.witnessReliability * .4 - s.appealPenalty * .4).toFixed(1);
+      appealWorked = appealStrength >= 2.6;
+      apply(s, { "defender.institution": appealWorked ? 2 : 1, longTermSafety: appealWorked ? 2 : 1, futureDemand: appealWorked ? -1 : 0 });
     }
     s.outcome = "safe-exit";
     const texts = {
       preserveEvidence: "Вы записываете детали и сохраняете свидетельства. Следующая встреча уже не начнётся с нуля.",
-      buildCoalitionAfter: "Вы договариваетесь ходить вместе. Разовый выход превращается в более устойчивую защиту.",
-      appealAfter: "Вы рассказываете взрослому и оставляете формальный след, даже если реакция пока неидеальна.",
+      buildCoalitionAfter: coalitionStrong ? "У сцены уже была социальная опора. Вы договариваетесь ходить вместе и превращаете её в устойчивую коалицию." : "Вы договариваетесь ходить вместе. Это начало социальной опоры, но без человека, реально включившегося в сцену, она пока непрочна.",
+      appealAfter: appealWorked ? "Доказательства и качество реакции взрослого превращают рассказ в сильную институциональную защиту." : "Вы рассказываете взрослому и оставляете формальный след, но слабая реакция или нехватка доказательств пока дают только ограниченную защиту.",
       doNothingAfter: "Вы заканчиваете день без дополнительного шага. Опасность сейчас миновала, но структура следующей встречи почти не изменилась."
     };
-    return { ...result(texts[id], ["После сцены завершено", `Repeat risk: ${repeatRiskLabel(s)}`], `Post-scene action=${id}; repeat pressure=${repeatPressure(s)}.`, "После безопасного выхода игрок отдельно выбрал, что останется к следующей встрече.", id === "doNothingAfter" ? 1 : 4), skipAggressor: true };
+    return { ...result(texts[id], ["После сцены завершено", `Repeat risk: ${repeatRiskLabel(s)}`], `Post-scene action=${id}; coalition foundation=${coalitionFoundation}; appeal strength=${appealStrength}; repeat pressure=${repeatPressure(s)}.`, "После безопасного выхода игрок отдельно выбрал, что останется к следующей встрече.", id === "doNothingAfter" ? 1 : 4), skipAggressor: true };
   }
   return result("Ситуация не изменилась.", [], "Unknown context action.", "", 0);
 }
@@ -500,6 +506,7 @@ function takeAction(id) {
   state.debug = `${player.debug}${stress ? `\n${stress}` : ""}\n${ai.debug}\n\nSTATE Δ: ${diff(before, snapshot())}`;
   state.history.unshift({ turn: state.turn, action: action.name, text: state.event, cause: player.cause, responseCause: ai.cause, weight: player.weight + ai.weight });
   state.turn += 1; state.stage = clamp(Math.max(state.stage, state.escalation), 0, SCENARIO.stages.length - 1);
+  selectedResponseLevel = null;
   updateSituation(); checkEnd(); if (soundEnabled) tickSound(); render();
 }
 
@@ -513,6 +520,7 @@ function takeContextAction(id) {
   state.debug = `${player.debug}\n${ai.debug}\n\nSTATE Δ: ${diff(before, snapshot())}`;
   state.history.unshift({ turn: state.turn, action: meta.name, text: state.event, cause: player.cause, responseCause: ai.cause, weight: player.weight + ai.weight });
   state.turn += 1; state.stage = clamp(Math.max(state.stage, state.escalation), 0, SCENARIO.stages.length - 1);
+  selectedResponseLevel = null;
   updateSituation(); checkEnd(); if (soundEnabled) tickSound(); render();
 }
 
@@ -644,6 +652,7 @@ function render() {
   $("knowledgeLabel").textContent = state.observations === 0 ? "Туманная" : state.observations < 3 ? "Вероятностная" : "Рабочая гипотеза";
   $("aggressorSummary").textContent = `Power ${state.aggressor.power} · Reputation ${state.aggressor.reputation} · оценка ${state.observations === 0 ? "туманная" : "уточняется"}`;
   $("defenderSummary").textContent = `Resolve ${state.defender.resolve} · Self-Control ${state.defender.selfControl} · Reputation ${state.defender.reputation}`;
+  $("profilesSnapshot").textContent = `Старший: Power ${state.aggressor.power} · Reputation ${state.aggressor.reputation} · Чик: Resolve ${state.defender.resolve} · Self-Control ${state.defender.selfControl} · противник изучен ${state.observations === 0 ? "плохо" : state.observations < 3 ? "частично" : "достаточно"}`;
   $("knowledgeFill").style.width = `${Math.min(100, 18 + state.observations * 25)}%`;
   $("signalList").innerHTML = state.signals.length ? state.signals.slice(0, 3).map(x => `<li>${x}</li>`).join("") : "<li>Пока только первое впечатление.</li>";
   const fieldNames = ["Один на один", "Сцена видима", "Коллективное поле", "Институциональное поле"];
@@ -655,7 +664,7 @@ function render() {
   $("debtLabel").textContent = debt === 0 ? "Связанных ставок нет" : `Debt ${debt} · угроза ${state.threatDebt} / публичная ставка ${state.statusPressure}`;
   const repeatRisk = repeatRiskLabel(state);
   $("repeatRiskLabel").textContent = `Риск повторного давления: ${repeatRisk} · ${repeatDrivers(state)}`;
-  $("stateSnapshot").textContent = `Control ${state.control > 0 ? "+" : ""}${state.control} · Danger ${state.danger} · Fear ${state.defender.fear} · Autonomy ${state.autonomy}`;
+  $("stateSnapshot").textContent = `Поле: ${fieldNames[clamp(state.field, 0, 3)].toLowerCase()} · Цена давления: ${(cost < 6 ? "низкая" : cost < 10 ? "средняя" : "высокая").toLowerCase()} · Свидетели: ${state.witnesses} · Повтор: ${repeatRisk}`;
   $("coreMetrics").innerHTML = [["Danger", state.danger], ["Fear", state.defender.fear], ["Autonomy", state.autonomy]].map(([k,v]) => `<div class="core-metric"><span>${k}</span><strong>${v}</strong></div>`).join("");
   const visibleResources = [["Witnesses", state.witnesses], ["Immediate Ally", state.immediateAllies], ["Evidence", state.evidence], ["Repeat Risk", repeatRisk]];
   $("resourceStrip").innerHTML = visibleResources.map(([k,v]) => `<div class="resource-item ${/Risk/.test(k) ? "debt" : ""}"><span>${k}</span><strong>${v}</strong></div>`).join("");
@@ -691,15 +700,24 @@ function render() {
     selector.className = "strength-selector"; pane.className = "selected-action-pane";
     RESPONSE_LEVELS.forEach(level => {
       const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === level.value);
+      const mapped = SCENARIO.actions.filter(action => action.kind === "field" && responseLevelFor(action) === level.value);
       const copy = directCopy(direct), tab = document.createElement("button");
       tab.className = `strength-choice${selectedResponseLevel === level.value ? " active" : ""}`;
       tab.type = "button"; tab.setAttribute("aria-pressed", selectedResponseLevel === level.value);
-      tab.innerHTML = `<b>${level.mark}</b><span>${level.label}</span><strong>${copy.name}</strong><em class="risk-${riskScore(direct)}">риск: ${riskLabel(direct)}</em>`;
+      const mapText = mapped.length ? mapped.slice(0, 2).map(action => `${action.icon} ${fieldCopy(action).name}`).join(" · ") + (mapped.length > 2 ? ` · +${mapped.length - 2}` : "") : "— нет действий поля";
+      tab.innerHTML = `<b>${level.mark}</b><span>${level.label}</span><strong>${copy.name}</strong><em class="risk-${riskScore(direct)}">риск: ${riskLabel(direct)}</em><small class="field-map">${mapText}</small>`;
       tab.addEventListener("click", () => { selectedResponseLevel = level.value; render(); });
       selector.appendChild(tab);
     });
 
-    const selectedLevel = RESPONSE_LEVELS.find(level => level.value === selectedResponseLevel) || RESPONSE_LEVELS[2];
+    actions.appendChild(selector);
+    if (selectedResponseLevel === null) {
+      const prompt = document.createElement("div");
+      prompt.className = "selection-prompt";
+      prompt.innerHTML = "<strong>Выберите силу ответа</strong><span>После выбора здесь появятся прямой ответ и способы изменить поле.</span>";
+      actions.appendChild(prompt);
+    } else {
+      const selectedLevel = RESPONSE_LEVELS.find(level => level.value === selectedResponseLevel);
     const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === selectedLevel.value);
     const directArea = document.createElement("section"), field = document.createElement("section");
     directArea.className = "direct-action-area"; field.className = "field-actions selected-field-actions";
@@ -714,7 +732,8 @@ function render() {
       fieldActions.slice(2).forEach(action => extra.appendChild(makeButton(action, selectedLevel.value)));
       more.append(summary, extra); field.appendChild(more);
     }
-    pane.append(directArea, field); actions.append(selector, pane);
+      pane.append(directArea, field); actions.appendChild(pane);
+    }
   }
   $("historyCount").textContent = `${state.history.length} ${state.history.length === 1 ? "событие" : "событий"}`;
   $("historyList").innerHTML = state.history.map(h => `<li><strong>Ход ${h.turn} · ${h.action}</strong><br>${h.text}</li>`).join("");
@@ -784,7 +803,7 @@ function showResult() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function startGame() { state = freshState(); selectedResponseLevel = 0; $("introView").classList.add("hidden"); $("resultView").classList.add("hidden"); $("gameView").classList.remove("hidden"); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function startGame() { state = freshState(); selectedResponseLevel = null; $("introView").classList.add("hidden"); $("resultView").classList.add("hidden"); $("gameView").classList.remove("hidden"); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 function tickSound() {
   try { const ctx = new (window.AudioContext || window.webkitAudioContext)(), osc = ctx.createOscillator(), gain = ctx.createGain(); osc.frequency.value = 180; gain.gain.setValueAtTime(.025, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .08); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + .08); } catch (_) { /* optional */ }
 }
@@ -803,4 +822,4 @@ $("soundButton").addEventListener("click", () => { soundEnabled = !soundEnabled;
 $("historyToggle").addEventListener("click", () => { const list = $("historyList"), open = list.classList.toggle("hidden") === false; $("historyToggle").setAttribute("aria-expanded", open); });
 $("modelDialog").addEventListener("click", e => { if (e.target === $("modelDialog")) $("modelDialog").close(); });
 
-window.ConflictSimulator = { SCENARIO, RESPONSE_LEVELS, WEIGHTS, ACTION_RULES, CONTEXT_ACTIONS, freshState, pressure, externalCost, futureBenefit, netIncentive, aggressorResponse, resolveContext, stressLoad, totalDebt, repeatPressure, repeatRiskLabel, exitRoute, responseLevelFor, actualRiskValue, perceivedRiskValue, riskScore };
+window.ConflictSimulator = { SCENARIO, RESPONSE_LEVELS, WEIGHTS, ACTION_RULES, CONTEXT_ACTIONS, freshState, pressure, externalCost, futureBenefit, netIncentive, aggressorResponse, resolveContext, stressAftermath, stressLoad, totalDebt, repeatPressure, repeatRiskLabel, exitRoute, responseLevelFor, actualRiskValue, perceivedRiskValue, riskScore };

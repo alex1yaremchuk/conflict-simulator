@@ -471,7 +471,12 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
 .strength-choice.active em { color: #d7d9d6; }
 .strength-choice em.risk-3 { color: #bd4d3e; }
 .strength-choice.active em.risk-3 { color: #ffaea1; }
+.strength-choice .field-map { display: block; margin-top: 8px; padding-top: 7px; overflow: hidden; border-top: 1px solid rgba(108,113,108,.24); color: var(--blue); font-size: 12px; line-height: 1.3; text-overflow: ellipsis; white-space: nowrap; }
+.strength-choice.active .field-map { border-top-color: rgba(255,255,255,.18); color: #b8d2d6; }
 .selected-action-pane { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; margin-top: 14px; }
+.selection-prompt { min-height: 122px; display: grid; place-content: center; gap: 6px; margin-top: 14px; border: 1px dashed #bcb6a9; color: var(--muted); text-align: center; }
+.selection-prompt strong { color: var(--ink); font-family: Prata, serif; font-size: 22px; font-weight: 400; }
+.selection-prompt span { font-size: 14px; }
 .direct-action-area, .selected-field-actions { min-width: 0; }
 .choice-section-label { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-height: 27px; margin-bottom: 7px; }
 .choice-section-label span { color: var(--ink); font-size: 14px; font-weight: 700; }
@@ -483,8 +488,6 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
 .profiles-drawer > summary { display: flex; align-items: center; justify-content: space-between; min-height: 42px; padding: 8px 14px; cursor: pointer; list-style: none; color: var(--blue); font-size: 14px; font-weight: 700; }
 .profiles-drawer > summary::-webkit-details-marker { display: none; }
 .profiles-drawer > summary small { color: var(--muted); font-size: 12px; font-weight: 500; }
-.profiles-drawer[open] > summary small { font-size: 0; }
-.profiles-drawer[open] > summary small::after { content: "Скрыть"; font-size: 12px; }
 .state-drawer { position: relative; border-top: 1px solid var(--line); }
 .state-drawer > summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 38px; padding: 7px 2px 0; cursor: pointer; list-style: none; color: var(--blue); font-size: 14px; font-weight: 700; }
 .state-drawer > summary::-webkit-details-marker { display: none; }
@@ -555,7 +558,7 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
   .stake-anchor p { font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
   .action-grid { display: block; }
   .strength-selector { gap: 7px; }
-  .strength-choice { min-height: 104px; padding: 10px 12px; }
+  .strength-choice { min-height: 124px; padding: 10px 12px; }
   .strength-choice b { font-size: 21px; }
   .strength-choice span { min-height: 0; font-size: 12px; }
   .strength-choice strong { margin-top: 5px; font-size: 15px; }
@@ -591,6 +594,7 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
 @media (max-width: 980px) {
   .profiles-drawer { order: 2; }
   .profiles-drawer > .actor-summary-bar { display: grid; }
+  .action-grid.spectrum { display: block; overflow: visible; padding-bottom: 0; }
   .strength-selector { grid-template-columns: repeat(5, minmax(160px, 1fr)); overflow-x: auto; padding-bottom: 8px; }
   .selected-action-pane { grid-template-columns: 1fr; }
   .selected-action-pane .action-button { padding: 14px; }
@@ -602,6 +606,8 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
 }
 
 @media (max-width: 620px) {
+  .state-drawer > summary, .profiles-drawer > summary { display: block; }
+  .state-drawer > summary small, .profiles-drawer > summary small { display: block; margin-top: 5px; white-space: normal; }
   .strength-selector { grid-template-columns: repeat(5, minmax(150px, 72vw)); margin-right: -16px; scroll-snap-type: x mandatory; }
   .strength-choice { scroll-snap-align: start; }
   .selected-field-actions { grid-template-columns: 1fr; }
@@ -625,11 +631,13 @@ dialog > p { color: var(--muted); font-size: 13px; line-height: 1.65; }
   .decision-heading h2 { font-size: 22px; }
   .decision-heading p { display: none; }
   .stake-anchor { min-height: 36px; margin-bottom: 6px; padding: 6px 10px; }
-  .strength-choice { min-height: 82px; padding: 6px 10px; }
+  .strength-choice { min-height: 98px; padding: 6px 10px; }
   .strength-choice b { display: inline; margin-right: 7px; font-size: 19px; }
   .strength-choice span { display: inline; font-size: 11px; }
   .strength-choice strong { margin-top: 4px; font-size: 14px; }
   .strength-choice em { margin-top: 2px; font-size: 11px; }
+  .strength-choice .field-map { margin-top: 4px; padding-top: 4px; font-size: 10px; }
+  .selection-prompt { min-height: 92px; margin-top: 6px; }
   .selected-action-pane { margin-top: 6px; }
   .choice-section-label { min-height: 20px; margin-bottom: 3px; }
   .choice-section-label span { font-size: 13px; }
