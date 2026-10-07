@@ -62,7 +62,9 @@
       </div>
 
       <div class="game-grid conflict-hud">
-        <div class="actor-summary-bar">
+        <details class="profiles-drawer">
+          <summary><span>Стороны и наблюдения</span><small>Открыть подробный контекст</small></summary>
+          <div class="actor-summary-bar">
           <details class="actor-summary aggressor" id="aggressorCard">
             <summary><span class="actor-symbol">A</span><span><b>Старший</b><small id="aggressorSummary">Power 7 · Reputation 7 · оценка туманная</small></span><em>Подробнее</em></summary>
             <div class="actor-detail-body"><div class="metric-list" id="aggressorMetrics"></div><div class="knowledge-card"><span>Оценка противника</span><strong id="knowledgeLabel">Туманная</strong><div class="mini-track"><i id="knowledgeFill"></i></div><ul class="signal-list" id="signalList"><li>Пока только первое впечатление.</li></ul></div></div>
@@ -71,7 +73,8 @@
             <summary><span class="actor-symbol">D</span><span><b>Чик</b><small id="defenderSummary">Resolve 5 · Self-Control 6 · Reputation 2</small></span><em>Подробнее</em></summary>
             <div class="actor-detail-body"><div class="metric-list" id="defenderMetrics"></div></div>
           </details>
-        </div>
+          </div>
+        </details>
 
         <section class="situation-panel central-hud">
           <div class="situation-top">
@@ -85,19 +88,24 @@
             <span class="demand-status" id="demandStatus">АКТИВНО</span>
           </div>
 
-          <div class="hud-state-row">
-            <div class="control-block">
-              <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
-              <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
-              <div class="control-value" id="controlValue">+3 агрессору</div>
-            </div>
-            <div class="core-metrics" id="coreMetrics"></div>
-            <div class="hud-context"><span>Поле</span><strong id="fieldLabel">Один на один</strong><small id="fieldDescription">Изоляция усиливает преимущество.</small></div>
-            <div class="hud-context cost"><span>Цена продолжения</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div></div>
-          </div>
+          <details class="state-drawer">
+            <summary><span>Состояние конфликта</span><small id="stateSnapshot">Control +3 · Danger 3 · Fear 6 · Autonomy 8</small></summary>
+            <div class="state-drawer-body">
+              <div class="hud-state-row">
+                <div class="control-block">
+                  <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
+                  <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
+                  <div class="control-value" id="controlValue">+3 агрессору</div>
+                </div>
+                <div class="core-metrics" id="coreMetrics"></div>
+                <div class="hud-context"><span>Поле</span><strong id="fieldLabel">Один на один</strong><small id="fieldDescription">Изоляция усиливает преимущество.</small></div>
+                <div class="hud-context cost"><span>Цена продолжения</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div></div>
+              </div>
 
-          <div class="resource-strip" id="resourceStrip"></div>
-          <details class="strategic-layer"><summary>Стратегический слой <span id="debtLabel">Связанных ставок нет</span></summary><div id="strategicResources"></div><p id="repeatRiskLabel">Риск повторного давления: средний</p></details>
+              <div class="resource-strip" id="resourceStrip"></div>
+              <details class="strategic-layer"><summary>Все показатели и ресурсы <span id="debtLabel">Связанных ставок нет</span></summary><div id="strategicResources"></div><p id="repeatRiskLabel">Риск повторного давления: средний</p></details>
+            </div>
+          </details>
 
           <div class="debug-panel hidden" id="debugPanel">
             <div class="debug-head"><span>EXPLAIN / DEBUG</span><span id="debugFormula">—</span></div>
@@ -107,7 +115,7 @@
       </div>
 
       <section class="decision-panel" id="decisionPanel">
-        <div class="decision-heading"><div><span class="eyebrow">ВАШ ХОД</span><h2>Насколько сильно ответить?</h2></div><p>Сила относительно текущей ставки конфликта. Риск — отдельная оценка, а не вторая шкала силы.</p></div>
+        <div class="decision-heading"><div><span class="eyebrow">ВАШ ХОД</span><h2>Выберите силу ответа</h2></div><p>Сначала выберите уровень. Затем решите: ответить прямо или изменить поле конфликта.</p></div>
         <div class="stake-anchor" id="stakeAnchor"><span>ТЕКУЩАЯ СТАВКА</span><strong id="stakeLabel">Слабое требование</strong><p id="stakeText">«Дай посмотреть блокнот. Я потом верну»</p></div>
         <div class="action-grid" id="actionGrid"></div>
       </section>

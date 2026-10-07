@@ -34,7 +34,7 @@ const WEIGHTS = Object.freeze({ uncertainty: .28, control: .32, debt: .48, weapo
 const $ = id => document.getElementById(id);
 const clamp = (n, min = 0, max = 10) => Math.max(min, Math.min(max, n));
 const signed = n => `${n > 0 ? "+" : ""}${n}`;
-let state, debugEnabled = false, soundEnabled = true;
+let state, debugEnabled = false, soundEnabled = true, selectedResponseLevel = 0;
 
 function randomSeed() {
   if (window.crypto?.getRandomValues) return window.crypto.getRandomValues(new Uint32Array(1))[0];
@@ -655,6 +655,7 @@ function render() {
   $("debtLabel").textContent = debt === 0 ? "Связанных ставок нет" : `Debt ${debt} · угроза ${state.threatDebt} / публичная ставка ${state.statusPressure}`;
   const repeatRisk = repeatRiskLabel(state);
   $("repeatRiskLabel").textContent = `Риск повторного давления: ${repeatRisk} · ${repeatDrivers(state)}`;
+  $("stateSnapshot").textContent = `Control ${state.control > 0 ? "+" : ""}${state.control} · Danger ${state.danger} · Fear ${state.defender.fear} · Autonomy ${state.autonomy}`;
   $("coreMetrics").innerHTML = [["Danger", state.danger], ["Fear", state.defender.fear], ["Autonomy", state.autonomy]].map(([k,v]) => `<div class="core-metric"><span>${k}</span><strong>${v}</strong></div>`).join("");
   const visibleResources = [["Witnesses", state.witnesses], ["Immediate Ally", state.immediateAllies], ["Evidence", state.evidence], ["Repeat Risk", repeatRisk]];
   $("resourceStrip").innerHTML = visibleResources.map(([k,v]) => `<div class="resource-item ${/Risk/.test(k) ? "debt" : ""}"><span>${k}</span><strong>${v}</strong></div>`).join("");
@@ -685,24 +686,36 @@ function render() {
     return btn;
   };
   if (context) CONTEXT_ACTIONS[context.type].forEach(action => actions.appendChild(makeButton(action)));
-  else RESPONSE_LEVELS.forEach(level => {
-    const column = document.createElement("section"), field = document.createElement("div");
-    column.className = `response-column level-${level.value < 0 ? `minus${Math.abs(level.value)}` : level.value}`;
-    field.className = "field-actions";
-    column.innerHTML = `<div class="response-column-heading"><b>${level.mark}</b><span>${level.label}</span></div>`;
-    const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === level.value);
-    column.appendChild(makeButton(direct, level.value));
-    const fieldActions = SCENARIO.actions.filter(action => action.kind === "field" && responseLevelFor(action) === level.value).sort((a, b) => Number(available(b)) - Number(available(a)) || riskScore(a) - riskScore(b));
-    if (fieldActions.length) field.innerHTML = "<div class=\"field-divider\">Изменить поле</div>";
-    fieldActions.slice(0, 2).forEach(action => field.appendChild(makeButton(action, level.value)));
+  else {
+    const selector = document.createElement("div"), pane = document.createElement("div");
+    selector.className = "strength-selector"; pane.className = "selected-action-pane";
+    RESPONSE_LEVELS.forEach(level => {
+      const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === level.value);
+      const copy = directCopy(direct), tab = document.createElement("button");
+      tab.className = `strength-choice${selectedResponseLevel === level.value ? " active" : ""}`;
+      tab.type = "button"; tab.setAttribute("aria-pressed", selectedResponseLevel === level.value);
+      tab.innerHTML = `<b>${level.mark}</b><span>${level.label}</span><strong>${copy.name}</strong><em class="risk-${riskScore(direct)}">риск: ${riskLabel(direct)}</em>`;
+      tab.addEventListener("click", () => { selectedResponseLevel = level.value; render(); });
+      selector.appendChild(tab);
+    });
+
+    const selectedLevel = RESPONSE_LEVELS.find(level => level.value === selectedResponseLevel) || RESPONSE_LEVELS[2];
+    const direct = SCENARIO.actions.find(action => action.kind === "direct" && action.responseLevel === selectedLevel.value);
+    const directArea = document.createElement("section"), field = document.createElement("section");
+    directArea.className = "direct-action-area"; field.className = "field-actions selected-field-actions";
+    directArea.innerHTML = `<div class="choice-section-label"><span>Прямой ответ</span><small>Ответить на текущий ход</small></div>`;
+    directArea.appendChild(makeButton(direct, selectedLevel.value));
+    const fieldActions = SCENARIO.actions.filter(action => action.kind === "field" && responseLevelFor(action) === selectedLevel.value).sort((a, b) => Number(available(b)) - Number(available(a)) || riskScore(a) - riskScore(b));
+    field.innerHTML = `<div class="choice-section-label"><span>Изменить поле</span><small>${fieldActions.length ? "Подготовить более выгодную ситуацию" : "На этом уровне подходящих действий нет"}</small></div>`;
+    fieldActions.slice(0, 2).forEach(action => field.appendChild(makeButton(action, selectedLevel.value)));
     if (fieldActions.length > 2) {
       const more = document.createElement("details"), summary = document.createElement("summary"), extra = document.createElement("div");
-      more.className = "more-actions"; summary.textContent = `ещё ${fieldActions.length - 2}`; extra.className = "more-actions-list";
-      fieldActions.slice(2).forEach(action => extra.appendChild(makeButton(action, level.value)));
+      more.className = "more-actions"; summary.textContent = `Показать ещё ${fieldActions.length - 2}`; extra.className = "more-actions-list";
+      fieldActions.slice(2).forEach(action => extra.appendChild(makeButton(action, selectedLevel.value)));
       more.append(summary, extra); field.appendChild(more);
     }
-    column.appendChild(field); actions.appendChild(column);
-  });
+    pane.append(directArea, field); actions.append(selector, pane);
+  }
   $("historyCount").textContent = `${state.history.length} ${state.history.length === 1 ? "событие" : "событий"}`;
   $("historyList").innerHTML = state.history.map(h => `<li><strong>Ход ${h.turn} · ${h.action}</strong><br>${h.text}</li>`).join("");
 }
@@ -771,7 +784,7 @@ function showResult() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-function startGame() { state = freshState(); $("introView").classList.add("hidden"); $("resultView").classList.add("hidden"); $("gameView").classList.remove("hidden"); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function startGame() { state = freshState(); selectedResponseLevel = 0; $("introView").classList.add("hidden"); $("resultView").classList.add("hidden"); $("gameView").classList.remove("hidden"); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
 function tickSound() {
   try { const ctx = new (window.AudioContext || window.webkitAudioContext)(), osc = ctx.createOscillator(), gain = ctx.createGain(); osc.frequency.value = 180; gain.gain.setValueAtTime(.025, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + .08); osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + .08); } catch (_) { /* optional */ }
 }
