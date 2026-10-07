@@ -61,14 +61,19 @@
         <div class="stress-state" id="stressState">Самообладание устойчиво</div>
       </div>
 
-      <div class="game-grid">
-        <aside class="actor-card aggressor" id="aggressorCard">
-          <div class="actor-title"><span class="actor-symbol">A</span><div><span class="eyebrow">COERCER</span><h2>Старший</h2></div></div>
-          <div class="metric-list" id="aggressorMetrics"></div>
-          <div class="knowledge-card"><span>Оценка противника</span><strong id="knowledgeLabel">Туманная</strong><div class="mini-track"><i id="knowledgeFill"></i></div><ul class="signal-list" id="signalList"><li>Пока только первое впечатление.</li></ul></div>
-        </aside>
+      <div class="game-grid conflict-hud">
+        <div class="actor-summary-bar">
+          <details class="actor-summary aggressor" id="aggressorCard">
+            <summary><span class="actor-symbol">A</span><span><b>Старший</b><small id="aggressorSummary">Power 7 · Reputation 7 · оценка туманная</small></span><em>Подробнее</em></summary>
+            <div class="actor-detail-body"><div class="metric-list" id="aggressorMetrics"></div><div class="knowledge-card"><span>Оценка противника</span><strong id="knowledgeLabel">Туманная</strong><div class="mini-track"><i id="knowledgeFill"></i></div><ul class="signal-list" id="signalList"><li>Пока только первое впечатление.</li></ul></div></div>
+          </details>
+          <details class="actor-summary defender">
+            <summary><span class="actor-symbol">D</span><span><b>Чик</b><small id="defenderSummary">Resolve 5 · Self-Control 6 · Reputation 2</small></span><em>Подробнее</em></summary>
+            <div class="actor-detail-body"><div class="metric-list" id="defenderMetrics"></div></div>
+          </details>
+        </div>
 
-        <section class="situation-panel">
+        <section class="situation-panel central-hud">
           <div class="situation-top">
             <div class="pulse-dot"></div>
             <div><span class="eyebrow">СЕЙЧАС</span><h2 id="situationTitle">Он пробует границу</h2></div>
@@ -80,28 +85,25 @@
             <span class="demand-status" id="demandStatus">АКТИВНО</span>
           </div>
 
-          <div class="control-block">
-            <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
-            <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
-            <div class="control-value" id="controlValue">+3 агрессору</div>
+          <div class="hud-state-row">
+            <div class="control-block">
+              <div class="control-labels"><span>Ваша инициатива</span><strong>CONTROL</strong><span>Его инициатива</span></div>
+              <div class="control-track"><div class="control-center"></div><i id="controlMarker"></i></div>
+              <div class="control-value" id="controlValue">+3 агрессору</div>
+            </div>
+            <div class="core-metrics" id="coreMetrics"></div>
+            <div class="hud-context"><span>Поле</span><strong id="fieldLabel">Один на один</strong><small id="fieldDescription">Изоляция усиливает преимущество.</small></div>
+            <div class="hud-context cost"><span>Цена продолжения</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div></div>
           </div>
 
-          <div class="core-metrics" id="coreMetrics"></div>
-
           <div class="resource-strip" id="resourceStrip"></div>
+          <details class="strategic-layer"><summary>Стратегический слой <span id="debtLabel">Связанных ставок нет</span></summary><div id="strategicResources"></div><p id="repeatRiskLabel">Риск повторного давления: средний</p></details>
 
           <div class="debug-panel hidden" id="debugPanel">
             <div class="debug-head"><span>EXPLAIN / DEBUG</span><span id="debugFormula">—</span></div>
             <pre id="debugText">Выберите действие, чтобы увидеть расчёт.</pre>
           </div>
         </section>
-
-        <aside class="actor-card defender">
-          <div class="actor-title"><span class="actor-symbol">D</span><div><span class="eyebrow">DEFENDER · ВЫ</span><h2>Чик</h2></div></div>
-          <div class="metric-list" id="defenderMetrics"></div>
-          <div class="field-card" id="fieldCard"><span>Игровое поле</span><strong id="fieldLabel">Один на один</strong><p id="fieldDescription">Изоляция усиливает физическое преимущество агрессора.</p></div>
-          <div class="cost-card"><span>Цена продолжения для агрессора</span><strong id="externalCostLabel">Низкая</strong><div class="mini-track"><i id="externalCostFill"></i></div><p id="debtLabel">Связанных ставок нет</p><p id="repeatRiskLabel">Риск повторного давления: средний</p></div>
-        </aside>
       </div>
 
       <section class="decision-panel" id="decisionPanel">
